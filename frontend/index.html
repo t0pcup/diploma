@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <link rel="shortcut icon" type="image/x-icon" href="logo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <style>
+        .map {
+            width: 80%;
+            height: 500px;
+        }
+
+        #wrapper {
+            float: left;
+            width: 80vw;
+            height: 100vh;
+        }
+
+        .sidebar {
+            height: 82vh;
+            float: right;
+            width: 20vw;
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        .customCard {
+            border: 1px solid grey;
+            border-radius: 10px;
+            margin: 10px auto;
+            padding: 10px 3px;
+            width: 90%;
+            align-items: center;
+            text-align: center;
+        }
+
+        .btn-circle.btn-sm {
+            width: 30px;
+            height: 30px;
+            padding: 6px 0px;
+            border-radius: 15px;
+            font-size: 8px;
+            text-align: center;
+        }
+
+        .btn-circle.btn-md {
+            width: 50px;
+            height: 50px;
+            padding: 7px 10px;
+            border-radius: 25px;
+            font-size: 10px;
+            text-align: center;
+        }
+
+        .btn-circle.btn-xl {
+            width: 70px;
+            height: 70px;
+            padding: 10px 16px;
+            border-radius: 35px;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .preloader {
+            /*фиксированное позиционирование*/
+            position: fixed;
+            /* координаты положения */
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            /* фоновый цвет элемента */
+            background: #cad7cb;
+            /* размещаем блок над всеми элементами на странице (это значение должно быть больше, чем у любого другого позиционированного элемента на странице) */
+            z-index: 1001;
+        }
+
+        .preloader__row {
+            position: relative;
+            top: 50%;
+            left: 50%;
+            width: 70px;
+            height: 70px;
+            margin-top: -35px;
+            margin-left: -35px;
+            text-align: center;
+            animation: preloader-rotate 2s infinite linear;
+        }
+
+        .preloader__item {
+            position: absolute;
+            display: inline-block;
+            top: 0;
+            background-color: #337ab7;
+            border-radius: 100%;
+            width: 35px;
+            height: 35px;
+            animation: preloader-bounce 2s infinite ease-in-out;
+        }
+
+        .preloader__item:last-child {
+            top: auto;
+            bottom: 0;
+            animation-delay: -1s;
+        }
+
+        @keyframes preloader-rotate {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes preloader-bounce {
+
+            0%,
+            100% {
+                transform: scale(0);
+            }
+
+            50% {
+                transform: scale(1);
+            }
+        }
+
+        .loaded_hiding .preloader {
+            transition: 0.3s opacity;
+            opacity: 0;
+        }
+
+        .loaded .preloader {
+            display: none;
+        }
+    </style>
+    <title>SAT ICE</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.8/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.3"></script>
+
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="//resources/demos/style.css">
+</head>
+<body>
+<div class="preloader">
+    <div class="preloader__row">
+        <div class="preloader__item"></div>
+        <div class="preloader__item"></div>
+    </div>
+</div>
+
+<div class="login_page" id="login_page">
+    <section class="vh-100" style="background-color: #eee0;">
+        <div class="container h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-lg-12 col-xl-11">
+                    <div class="card text-black" style="border-radius: 25px; background: rgba(200,200,200,0)">
+                        <div class="card-body p-md-5">
+                            <div class="row justify-content-center">
+                                <div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
+
+                                    <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">Войти в аккаунт</p>
+                                    <p class="text-center h6 mb-5 mx-1 mx-md-4 mt-4">
+                                        Чтобы просматривать заказы, войдите в аккаунт или создайте его
+                                    </p>
+
+                                    <form id="loginForm" class="mx-1 mx-md-4">
+
+                                        <div class="d-flex flex-row align-items-center mb-1">
+                                            <i class="fas fa-user fa-lg me-3 fa-fw"></i>
+                                            <div class="form-outline flex-fill mb-0">
+                                                <input type="text" id="logLogin" class="form-control"
+                                                       placeholder="логин"/>
+                                                <label id="logLoginError" class="form-label" for="logLogin"
+                                                       style="color: red; visibility: hidden; font-size: 80%">Error</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex flex-row align-items-center mb-2">
+                                            <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
+                                            <div class="form-outline flex-fill mb-0">
+                                                <input type="password" id="logPwd" class="form-control"
+                                                       placeholder="пароль"/>
+                                                <label id="logPwdError" class="form-label" for="logPwd"
+                                                       style="color: red; visibility: hidden; font-size: 80%">Error</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
+                                            <button id="logSubmit" type="button" class="btn btn-primary btn-lg">Войти
+                                            </button>
+                                        </div>
+
+                                        <p class="text-center text-muted mt-1 mb-0">Вы здесь впервые?
+                                            <a id="to_register_page_from_log" class="fw-bold text-body"
+                                               style="cursor: pointer;"><u
+                                                    style="color: blue">Зарегистрироваться</u></a>
+                                        </p>
+
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<div class="register_page" id="register_page">
+    <section class="vh-100" style="background-color: #eee0;">
+        <div class="container h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-lg-12 col-xl-11">
+                    <div class="card text-black" style="border-radius: 25px; background: rgba(200,200,200,0)">
+                        <div class="card-body p-md-5">
+                            <div class="row justify-content-center">
+                                <div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
+
+                                    <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">Создать аккаунт</p>
+                                    <p class="text-center h6 mb-5 mx-1 mx-md-4 mt-4">
+                                        Чтобы просматривать заказы, войдите в аккаунт или создайте его
+                                    </p>
+
+                                    <form class="mx-1 mx-md-4">
+
+                                        <div class="d-flex flex-row align-items-center mb-1">
+                                            <i class="fas fa-user fa-lg me-3 fa-fw"></i>
+                                            <div class="form-outline flex-fill mb-0">
+                                                <input type="text" id="regLogin" class="form-control"
+                                                       placeholder="логин*"/>
+                                                <label id="regLoginError" class="form-label" for="regLogin"
+                                                       style="color: red; visibility: hidden; font-size: 80%">Error</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex flex-row align-items-center mb-1">
+                                            <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
+                                            <div class="form-outline flex-fill mb-0">
+                                                <input type="password" id="regPwd" class="form-control"
+                                                       placeholder="пароль*"/>
+                                                <label id="regPwdError" class="form-label" for="regPwd"
+                                                       style="color: red; visibility: hidden; font-size: 80%">Error</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex flex-row align-items-center mb-1">
+                                            <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
+                                            <div class="form-outline flex-fill mb-0">
+                                                <input type="password" id="repeatPwd" class="form-control"
+                                                       placeholder="повтор пароля*"/>
+                                                <label id="regRepeatPwdError" class="form-label" for="repeatPwd"
+                                                       style="color: red; visibility: hidden; font-size: 80%">Error</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex flex-row align-items-center mb-1">
+                                            <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
+                                            <div class="form-outline flex-fill mb-0">
+                                                <input type="text" id="surname" class="form-control"
+                                                       placeholder="фамилия"/>
+                                                <label id="regSurnameError" class="form-label" for="surname"
+                                                       style="color: red; visibility: hidden; font-size: 80%">Error</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex flex-row align-items-center mb-1">
+                                            <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
+                                            <div class="form-outline flex-fill mb-0">
+                                                <input type="text" id="name" class="form-control" placeholder="имя"/>
+                                                <label id="regNameError" class="form-label" for="name"
+                                                       style="color: red; visibility: hidden; font-size: 80%">Error</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex flex-row align-items-center mb-1">
+                                            <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
+                                            <div class="form-outline flex-fill mb-0">
+                                                <input type="text" id="patronymic" class="form-control"
+                                                       placeholder="отчество"/>
+                                                <label id="regPatronymicError" class="form-label" for="patronymic"
+                                                       style="color: red; visibility: hidden; font-size: 80%">Error</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
+                                            <button id="regSubmit" type="button" class="btn btn-primary btn-lg">
+                                                Зарегистрироваться
+                                            </button>
+                                        </div>
+
+                                        <p class="text-center text-muted mt-1 mb-0">Уже есть аккаунт?
+                                            <a id="to_login_page_from_reg" class="fw-bold text-body"
+                                               style="cursor: pointer;"><u style="color: blue">Войти</u></a>
+                                        </p>
+
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<div class="workbench_page" id="workbench_page">
+    <div id="wrapper" style="align-items: center;">
+        <button class="btn bg-transparent" type="button" id="to_acc_page"
+                style="position: absolute; margin: 10px 50px; border: 2px black dashed; z-index: 2"><span>Аккаунт</span>
+        </button>
+
+        <table style="position: absolute; margin: 10px; left: 50%; z-index: 2">
+            <tbody>
+                <tr>
+                    <td>
+                        <input class="form-control btn btn-primary rounded-0" type="button" value="Отменить" id="undo">
+                    </td>
+                    <td>
+                        <input class="form-control btn btn-primary rounded-0" type="button" value="Сбросить" id="abort">
+                    </td>
+                    <td>
+                        <input class="form-control btn btn-primary rounded-0" type="button" value="Очистить" id="clear">
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary dropdown-toggle rounded-0" data-bs-toggle="dropdown" data-toggle="dropdown"
+                                    aria-haspopup="true" aria-expanded="false">
+                                Меню
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <button class="exportBtn dropdown-item" type="button" id="exportBtn">
+                                    <span>Скачать разметку</span>
+                                </button>
+                                <button class="exportBtn dropdown-item" type="button" id="clearBtnL">
+                                    <span>Очистить результат</span>
+                                </button>
+                                <button class="exportBtn dropdown-item" type="button" id="exportBtnL">
+                                    <span>Скачать результат</span>
+                                </button>
+                                <button class="exportBtn dropdown-item" type="button" id="clearBtnI">
+                                    <span>Скрыть снимок</span>
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div id="canvas" class="canvas" style="width: 80vw; height: 100vh">
+            <div id="map" class="map" style="width: 100%; height: 100%"></div>
+        </div>
+    </div>
+
+    <div style="position: absolute; z-index: 2; left: 57%; top: 80%; width: 30%;">
+        <div id="controls">
+            <div class="row">
+                <div class="col-auto">
+
+                    <div class="input-group" style="display: inline-block; text-align: center; align-items: center">
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div id="overlay" class="overlay">
+            <div>EPSG:4326
+                <div id="mouse-position"></div>
+            </div>
+            <div>EPSG:3857
+                <div id="mouse-position2"></div>
+            </div>
+
+            <form>
+                <label for="precision">Precision</label>
+                <input id="precision" type="number" min="0" max="15" value="4"/>
+                <label for="style"></label>
+                <select id="style">
+                    <option value="layer_schema">Schema</option>
+                    <option value="layer_sat">Satellite</option>
+                </select>
+<!--                <p id="projection">Projection: EPSG:3857</p>-->
+            </form>
+        </div>
+    </div>
+
+    <div style="float: right; text-align: center;">
+        <p style="text-align: center; margin-bottom: -15px;"><strong>Ваши заказы</strong></p>
+        <hr style="border-top: 1px solid black;"/>
+        <div class="sidebar" style="overflow-y: scroll;">
+            <div id="app">
+
+            </div>
+        </div>
+        <hr style="border-top: 1px solid black;"/>
+    </div>
+
+    <div style="float: right; text-align: center; width: 20vw; height: 8vh;">
+        <hr style=""/>
+        <button id="createNewOrder" style="left: 50%; width: 100%; height: 80%" class="btn btn-primary">Создать заказ</button>
+    </div>
+</div>
+
+
+<div class="account_page" id="account_page">
+
+    <!-- Модальное окно -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Удалить аккаунт?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    Это действие нельзя отменить. Вы уверены, что хотите удалить свой аккаунт навсегда?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="deleteAccount">Удалить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="vh-100" style="background-color: #eee0;">
+        <div class="container h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-lg-12 col-xl-11">
+                    <div class="card text-black" style="border-radius: 25px; background: rgba(200,200,200,0)">
+                        <div class="card-body p-md-5">
+                            <div class="row justify-content-center">
+                                <div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
+
+                                    <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">Аккаунт</p>
+                                    <p class="text-center h6 mb-5 mx-1 mx-md-4 mt-4">
+                                        Вы можете изменить данные: просто введите новые значения в нужные поля и нажмите
+                                        сохранить
+                                    </p>
+
+                                    <form class="mx-1 mx-md-4">
+
+                                        <div class="d-flex flex-row align-items-center mb-4">
+                                            <i class="fas fa-user fa-lg me-3 fa-fw"></i>
+                                            <div class="form-outline flex-fill mb-0">
+                                                <input type="text" id="login" class="form-control"
+                                                       placeholder="логин*"/>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex flex-row align-items-center mb-4">
+                                            <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
+                                            <div class="form-outline flex-fill mb-0">
+                                                <input type="password" id="currPwd" class="form-control"
+                                                       placeholder="текущий пароль*"/>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex flex-row align-items-center mb-4">
+                                            <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
+                                            <div class="form-outline flex-fill mb-0">
+                                                <input type="password" id="newPwd" class="form-control"
+                                                       placeholder="новый пароль*"/>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex flex-row align-items-center mb-4">
+                                            <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
+                                            <div class="form-outline flex-fill mb-0">
+                                                <input type="text" id="newSurname" class="form-control"
+                                                       placeholder="фамилия"/>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex flex-row align-items-center mb-4">
+                                            <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
+                                            <div class="form-outline flex-fill mb-0">
+                                                <input type="text" id="newName" class="form-control" placeholder="имя"/>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex flex-row align-items-center mb-4">
+                                            <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
+                                            <div class="form-outline flex-fill mb-0">
+                                                <input type="text" id="newPatronymic" class="form-control"
+                                                       placeholder="отчество"/>
+                                            </div>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="btn-group">
+                                                <div class="row-sm-3">
+                                                    <button id="to_workbench_page" type="button"
+                                                            class="btn btn-outline-primary btn-block">Вернуться
+                                                    </button>
+                                                    <button id="logOut" type="button"
+                                                            class="btn btn-outline-danger btn-block">Выйти
+                                                    </button>
+                                                    <button id="newSubmit" type="button"
+                                                            class="btn btn-outline-success btn-block">Сохранить
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p class="text-center text-muted mt-1 mb-0">
+                                            <a id="to_delete_acc_page" data-bs-toggle="modal"
+                                               data-bs-target="#exampleModal" class="fw-bold text-body"
+                                               style="cursor: pointer;"><u style="color: red">Удалить аккаунт</u></a>
+                                        </p>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script type="module" src="./main.js"></script>
+<!--<script type="module" src="./controller.js"></script>-->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+        crossorigin="anonymous"></script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+
+<script>
+    window.onload = function () {
+        document.body.classList.add('loaded_hiding');
+        window.setTimeout(function () {
+            document.body.classList.add('loaded');
+            document.body.classList.remove('loaded_hiding');
+        }, 1000);
+    }
+
+</script>
+</body>
+</html>
