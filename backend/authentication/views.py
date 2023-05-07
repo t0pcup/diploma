@@ -2,7 +2,6 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from .renderers import UserJSONRenderer
 from .serializers import DeleteSerializer, LoginSerializer, RegistrationSerializer
 
@@ -34,7 +33,6 @@ class LoginAPIView(APIView):
 
     def post(self, request):
         user = request.data.get('user', {})
-
         # Обратите внимание, что мы не вызываем метод save() сериализатора, как
         # делали это для регистрации. Дело в том, что в данном случае нам
         # нечего сохранять. Вместо этого, метод validate() делает все нужное.
@@ -45,14 +43,14 @@ class LoginAPIView(APIView):
 
 
 class DeleteAPIView(APIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (AllowAny,)
+    # authentication_classes = (IsAuthenticated,) todo
     renderer_classes = (UserJSONRenderer,)
     serializer_class = DeleteSerializer
 
     def delete(self, request):
-        user = request.data.get('user', {})
-
-        serializer = self.serializer_class(data=user)
-        # serializer.is_valid(raise_exception=True)
+        token = {"token": request.headers['Authorization'].split(' ')[1]}
+        serializer = self.serializer_class(data=token)
+        serializer.is_valid(raise_exception=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)

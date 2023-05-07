@@ -12,11 +12,12 @@ class UserJSONRenderer(JSONRenderer):
         # декодировать их перед рендерингом объекта User.
         token = data.get('token', None)
 
+        print('data', data)
         if token is not None and isinstance(token, bytes):
             # Как говорится выше, декодирует token если он имеет тип bytes.
             data['token'] = token.decode('utf-8')
 
-        # Наконец, мы можем отобразить наши данные в простанстве имен 'user'.
+        # Наконец, мы можем отобразить наши данные в пространстве имен 'user'.
         return json.dumps({
             'user': data
         })

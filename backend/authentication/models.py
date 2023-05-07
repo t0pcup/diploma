@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
 import jwt
+import uuid
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
@@ -34,11 +35,13 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    username = models.CharField(db_index=True, max_length=255, unique=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid1, editable=False)
 
-    name = models.CharField(max_length=255, default='')
-    surname = models.CharField(max_length=255, default='')
-    patronymic = models.CharField(max_length=255, default='')
+    username = models.CharField(max_length=255, unique=True)
+
+    name = models.CharField(max_length=255, default='', null=True, blank=True)
+    surname = models.CharField(max_length=255, default='', null=True, blank=True)
+    patronymic = models.CharField(max_length=255, default='', null=True, blank=True)
 
     is_active = models.BooleanField(default=True)
 
@@ -73,12 +76,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         dt = datetime.now() + timedelta(hours=1)
 
         token = jwt.encode({
-            'id': self.pk,
+            'id': str(self.id),
             'exp': dt.utcfromtimestamp(dt.timestamp())
         }, settings.SECRET_KEY, algorithm='HS256')
 
         return token
-
-    # def delete(self, using=None, keep_parents=False):
-    #     self.is_active = False
-    #     super().delete()

@@ -140,7 +140,7 @@
     <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.3"></script>
 
     <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
-    <link rel="stylesheet" href="//resources/demos/style.css">
+    <link rel="stylesheet" href="./style.css">
 </head>
 <body>
 <div class="preloader">
@@ -246,7 +246,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="d-flex flex-row align-items-center mb-1">
+                                        <!-- <div class="d-flex flex-row align-items-center mb-1">
                                             <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
                                             <div class="form-outline flex-fill mb-0">
                                                 <input type="password" id="repeatPwd" class="form-control"
@@ -254,7 +254,7 @@
                                                 <label id="regRepeatPwdError" class="form-label" for="repeatPwd"
                                                        style="color: red; visibility: hidden; font-size: 80%">Error</label>
                                             </div>
-                                        </div>
+                                        </div> -->
 
                                         <div class="d-flex flex-row align-items-center mb-1">
                                             <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
@@ -309,40 +309,41 @@
 
 <div class="workbench_page" id="workbench_page">
     <div id="wrapper" style="align-items: center;">
-        <button class="btn bg-transparent" type="button" id="to_acc_page"
-                style="position: absolute; margin: 10px 50px; border: 2px black dashed; z-index: 2"><span>Аккаунт</span>
+        <button class="btn" type="button" id="to_acc_page"
+                style="position: absolute; margin: 10px 50px; border: 2px; z-index: 2; background-color: rgba(255,255,255,0.7)">
+                <span>Аккаунт</span>
         </button>
 
-        <table style="position: absolute; margin: 10px; left: 50%; z-index: 2">
+        <table style="position: absolute; margin-top: 10px; left: 55%; z-index: 2">
             <tbody>
                 <tr>
                     <td>
-                        <input class="form-control btn btn-primary rounded-0" type="button" value="Отменить" id="undo">
+                        <input class="form-control btn btn-primary rounded-2" type="button" value="Отменить" id="undo" disabled="true">
                     </td>
                     <td>
-                        <input class="form-control btn btn-primary rounded-0" type="button" value="Сбросить" id="abort">
+                        <input class="form-control btn btn-primary rounded-2" type="button" value="Сбросить" id="abort" disabled="true">
                     </td>
                     <td>
-                        <input class="form-control btn btn-primary rounded-0" type="button" value="Очистить" id="clear">
+                        <input class="form-control btn btn-primary rounded-2" type="button" value="Очистить" id="clear" disabled="true">
                     </td>
                     <td>
                         <div class="btn-group">
-                            <button type="button" class="btn btn-primary dropdown-toggle rounded-0" data-bs-toggle="dropdown" data-toggle="dropdown"
+                            <button id="menuBtn" type="button" class="btn btn-primary dropdown-toggle rounded-2" data-bs-toggle="dropdown" data-toggle="dropdown"
                                     aria-haspopup="true" aria-expanded="false">
                                 Меню
                             </button>
                             <div class="dropdown-menu dropdown-menu-right">
-                                <button class="exportBtn dropdown-item" type="button" id="exportBtn">
-                                    <span>Скачать разметку</span>
+                                <button disabled="true" class="exportBtn dropdown-item" type="button" id="exportBtn">
+                                    <span id="userShp" class="text-secondary">Скачать разметку</span>
                                 </button>
-                                <button class="exportBtn dropdown-item" type="button" id="clearBtnL">
-                                    <span>Очистить результат</span>
+                                <button disabled="true" class="exportBtn dropdown-item" type="button" id="exportBtnL">
+                                    <span class="text-secondary">Скачать результат</span>
                                 </button>
-                                <button class="exportBtn dropdown-item" type="button" id="exportBtnL">
-                                    <span>Скачать результат</span>
+                                <button disabled="true" class="exportBtn dropdown-item" type="button" id="clearBtnL">
+                                    <span class="text-secondary">Очистить результат</span>
                                 </button>
-                                <button class="exportBtn dropdown-item" type="button" id="clearBtnI">
-                                    <span>Скрыть снимок</span>
+                                <button disabled="true" class="exportBtn dropdown-item" type="button" id="clearBtnI">
+                                    <span id="userImg"  class="text-secondary">Скрыть снимок</span>
                                 </button>
                             </div>
                         </div>
@@ -368,7 +369,8 @@
             </div>
         </div>
 
-        <div id="overlay" class="overlay">
+        <div id="overlay" class="overlay rounded-2" 
+            style="width: 68%; background-color: rgba(255,255,255,0.7); text-align: right; padding-right: 3%;">
             <div>EPSG:4326
                 <div id="mouse-position"></div>
             </div>
@@ -380,7 +382,7 @@
                 <label for="precision">Precision</label>
                 <input id="precision" type="number" min="0" max="15" value="4"/>
                 <label for="style"></label>
-                <select id="style">
+                <select id="style" class="form-select" style="width: 50%; margin-left: 50%;">
                     <option value="layer_schema">Schema</option>
                     <option value="layer_sat">Satellite</option>
                 </select>
@@ -390,7 +392,7 @@
     </div>
 
     <div style="float: right; text-align: center;">
-        <p style="text-align: center; margin-bottom: -15px;"><strong>Ваши заказы</strong></p>
+        <p style="text-align: center; margin-bottom: -15px; font-size: 18px;"><strong>Ваши заказы</strong></p>
         <hr style="border-top: 1px solid black;"/>
         <div class="sidebar" style="overflow-y: scroll;">
             <div id="app">
@@ -401,8 +403,8 @@
     </div>
 
     <div style="float: right; text-align: center; width: 20vw; height: 8vh;">
-        <hr style=""/>
-        <button id="createNewOrder" style="left: 50%; width: 100%; height: 80%" class="btn btn-primary">Создать заказ</button>
+        <hr/>
+        <button id="createNewOrder" style="left: 50%; width: 95%; height: 80%" class="btn btn-primary">Создать заказ</button>
     </div>
 </div>
 

@@ -1,13 +1,25 @@
-from django.urls import path
-# from .views import LoginAPIView, RegistrationAPIView
+from django.contrib.auth import authenticate
+from rest_framework import status
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-app_name = 'showcase'
-urlpatterns = [
-    path('register/', RegistrationAPIView.as_view()),
-    path('login/', LoginAPIView.as_view()),
-]
+from .renderers import OrderJSONRenderer
+from .serializers import CreateSerializer
 
-# Todo:
-# GET /orders/ read all my orders
-# POST /order/ create new order
-# DELETE /orders?order_id= create new order
+
+class OrderAPIView(APIView):
+    permission_classes = (AllowAny,)  # TODO: IsAuthenticated
+    renderer_classes = (OrderJSONRenderer,)
+    serializer_class = CreateSerializer
+
+    def post(self, request):
+        order = request.data.get('order', {})
+
+        # Паттерн создания сериализатора, валидации и сохранения - довольно
+        # стандартный, и его можно часто увидеть в реальных проектах.
+        serializer = self.serializer_class(data=order)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

@@ -65,11 +65,11 @@ const projection = getProjection(viewProjSelect);
 const scaleControl = new ScaleLine({
     units: 'metric',
     bar: true,
-    dpi: 150,
+    dpi: 250,
     steps: 4,
     text: true,
-    minWidth: 100,
-    maxWidth: 150,
+    minWidth: 50,
+    maxWidth: 100,
 });
 
 const source = new VectorSource({wrapX: false});
@@ -116,17 +116,23 @@ let map = new Map({
     layers: [layer_schema, vector],
     target: 'map',
     view: new View({
-        center: [0, 0],
-        zoom: 0,
+        center: [4187580.9902, 7508989.6804],
+        zoom: 6,
     }),
 });
 
- const extent = getProjection('EPSG:3857').getExtent().slice();
+const extent = getProjection('EPSG:3857').getExtent().slice();
 extent[0] += extent[0];
 extent[2] += extent[2];
 const precisionInput = document.getElementById('precision');
 precisionInput.addEventListener('change', function (event) {
-    const format = createStringXY(event.target.valueAsNumber);
+    const precision_val = event.target.valueAsNumber;
+    var overlay_width = 68;
+    if (precision_val > 6){
+        overlay_width = 78
+    }
+    document.getElementById("overlay").style.width = `${overlay_width}%`;
+    const format = createStringXY(precision_val);
     mousePositionControl.setCoordinateFormat(format);
     mousePositionControl2.setCoordinateFormat(format);
 });
@@ -230,8 +236,22 @@ document.getElementById('undo').addEventListener('click', function () {
 });
 document.getElementById('abort').addEventListener('click', function () {
     draw.abortDrawing();
+    document.getElementById('clear').disabled = true;
+    document.getElementById('exportBtn').disabled = true;
+    document.getElementById('undo').disabled = true;
+    document.getElementById('abort').disabled = true;
+
+    document.getElementById('userShp').classList.add('text-secondary');
+    document.getElementById('userShp').classList.remove('text-primary');
 });
 document.getElementById('clear').addEventListener('click', function () {
+    document.getElementById('clear').disabled = true;
+    document.getElementById('exportBtn').disabled = true;
+    document.getElementById('undo').disabled = true;
+    document.getElementById('abort').disabled = true;
+
+    document.getElementById('userShp').classList.add('text-secondary');
+    document.getElementById('userShp').classList.remove('text-primary');
     source.clear();
 });
 document.getElementById("exportBtn").addEventListener('click', function () {
@@ -326,11 +346,14 @@ document.getElementById("clearBtnL").addEventListener('click', function () {
 document.getElementById("clearBtnI").addEventListener('click', function () {
     var lst = [];
     for (let i = 0, ii = map.getLayers().array_.length; i < ii; ++i) {
-        if (map.getLayers().array_[i].values_['zIndex'] !== 2) {
+        if (map.getLayers().array_[i].values_['zIndex'] !== 2 && map.getLayers().array_[i].values_['zIndex'] !== 0) {
             lst.push(map.getLayers().array_[i])
         }
     }
-    map.setLayers(lst)
+    map.setLayers(lst);
+    document.getElementById('clearBtnI').disabled = true;
+    document.getElementById('userImg').classList.add('text-secondary');
+    document.getElementById('userImg').classList.remove('text-primary');
 });
 let my_str;
 
@@ -346,7 +369,7 @@ const modifyStyle = new Style({
         }),
     }),
     text: new Text({
-        text: 'Drag to modify',
+        text: 'Понятите, чтобы измнить',
         font: '12px Calibri,sans-serif',
         fill: new Fill({
             color: 'rgba(255, 255, 255, 1)',
@@ -413,7 +436,7 @@ function onChangeProjection() {
     }
 
 //    if (remember.length > 0) { TODO 04.05.2023
-//        my_str = `http://services.sentinel-hub.com/ogc/wms/${sent_2}?SERVICE=WMS&REQUEST=GetMap&CRS=${viewProjSelect.value}&SHOWLOGO=false&VERSION=1.3.0&LAYERS=NATURAL-COLOR&MAXCC=1&WIDTH=256&HEIGHT=256&CRS=EPSG:3857&FORMAT=image/jpeg&TIME=2018-03-29/2018-05-29&GEOMETRY=${wktRepresenation}`
+//        my_str = `http://services.sentinel-hub.com/ogc/wms/${sent_2}?SERVICE=WMS&REQUEST=GetMap&CRS=${viewProjSelect.value}&SHOWLOGO=false&VERSION=1.3.0&LAYERS=NATURAL-COLOR&MAXCC=1&WIDTH=256&HEIGHT=256&CRS=EPSG:3857&FORMAT=image/jpeg&TIME=2018-03-29/2018-05-29&GEOMETRY=${wktRepresentation}`
 //
 //        var img_ext = olProj.transformExtent(Bound, 'EPSG:3857', 'EPSG:3857') // EPSG:4326 3857
 //        var imageLayer = new ImageLayer({
@@ -468,6 +491,14 @@ function clearLoginPage() {
     document.getElementById("logPwd").value = ''
     document.getElementById("logLogin").style.borderColor = ''
     document.getElementById("logPwd").style.borderColor = ''
+    
+    const logError = document.getElementById("logLoginError");
+    const pwdError = document.getElementById("logPwdError");
+    logError.style.visibility = "hidden";
+    pwdError.style.visibility = "hidden";
+
+    document.getElementById("logLoginError").value = '';
+    document.getElementById("logPwdError").value = '';
 }
 
 function validateLoginForm() {
@@ -475,6 +506,37 @@ function validateLoginForm() {
     const password = document.getElementById("logPwd");
     const logError = document.getElementById("logLoginError");
     const pwdError = document.getElementById("logPwdError");
+    var usernameInvalid = false
+    var passwordInvalid = false
+
+    if (username.value === '') {
+        username.style.borderColor = 'red'
+        usernameInvalid = true
+        logError.style.visibility = "visible";
+        logError.textContent = "Поле 'Логин' не должно быть пустым"
+    } else {
+        username.style.borderColor = 'green'
+        logError.style.visibility = "hidden";
+    }
+
+    if (password.value === '') {
+        password.style.borderColor = 'red'
+        passwordInvalid = true
+        pwdError.style.visibility = "visible";
+        pwdError.textContent = "Поле 'Пароль' не должно быть пустым"
+    } else {
+        password.style.borderColor = 'green'
+        pwdError.style.visibility = "hidden";
+    }
+
+    return !(usernameInvalid || passwordInvalid);
+}
+
+function validateRegForm(){
+    const username = document.getElementById("regLogin");
+    const password = document.getElementById("regPwd");
+    const logError = document.getElementById("regLoginError");
+    const pwdError = document.getElementById("regPwdError");
     var usernameInvalid = false
     var passwordInvalid = false
 
@@ -523,29 +585,62 @@ document.getElementById("to_login_page_from_reg").addEventListener('click', func
 });
 
 document.getElementById("regSubmit").addEventListener('click', async function () {
-    const username = document.getElementById("regLogin").value.toString();
-    const password = document.getElementById("regPwd").value.toString();
-    const confirmed = document.getElementById("repeatPwd").value.toString();
-    const surname = document.getElementById("surname").value.toString();
-    const name = document.getElementById("name").value.toString();
-    const patronymic = document.getElementById("patronymic").value.toString();
+    if (validateRegForm()) {
+        const username = document.getElementById("regLogin").value.toString();
+        const password = document.getElementById("regPwd").value.toString();
+        // const confirmed = document.getElementById("repeatPwd").value.toString();
+        const surname = document.getElementById("surname").value.toString();
+        const name = document.getElementById("name").value.toString();
+        const patronymic = document.getElementById("patronymic").value.toString();
 
-    const url_ = 'http://localhost:8000/register/'  // Done
-    let response = await fetch(url_, {
-        method: "POST",
-        headers: {"Accept": 'application/json', "Content-type": 'application/json'},
-        body: JSON.stringify({
-            "username": username,
-            "password": password,
-            "name": name,
-            "surname": surname,
-            "patronymic": patronymic
+        const url_ = 'http://localhost:8000/register/'  // Done
+        
+        let response = await fetch(url_, {
+            method: "POST",
+            headers: {"Accept": 'application/json', "Content-type": 'application/json'},
+            body: JSON.stringify({
+                "user": {
+                    "username": username,
+                    "password": password,
+                    "name": name == "" ? null : patronymic,
+                    "surname": surname == "" ? null : patronymic,
+                    "patronymic": patronymic == "" ? null : patronymic
+                }
+            })
         })
-    })
 
-    if (response.ok) {
-        response = await response.json()
-        showLoginPage()
+        if (response.ok) {
+            response = await response.json()
+            clearLoginPage()
+            showLoginPage()
+        } else {
+            response = await response.json()
+            console.log(response["user"]["username"])
+            console.log(response["user"]["password"])
+
+            const username = document.getElementById("regLogin");
+            const password = document.getElementById("regPwd");
+            const logError = document.getElementById("regLoginError");
+            const pwdError = document.getElementById("regPwdError");
+            var usernameInvalid = false
+            var passwordInvalid = false
+
+            if (response["user"]["username"] !== "undefined" && 
+                response["user"]["username"][0] == "user with this username already exists."){
+                username.style.borderColor = 'red'
+                usernameInvalid = true
+                logError.style.visibility = "visible";
+                logError.textContent = "Логин занят"
+            }
+
+            if (response["user"]["password"] !== "undefined" && 
+                response["user"]["password"][0] == "Ensure this field has at least 8 characters."){
+                    passwordInvalid = true
+                    password.style.borderColor = 'red'
+                    pwdError.style.visibility = "visible";
+                    pwdError.textContent = "Пароль должен содержать 8 символов"
+            }
+        }
     }
 });
 
@@ -559,37 +654,58 @@ document.getElementById("logSubmit").addEventListener('click', async function ()
             method: "POST",
             headers: {"Accept": 'application/json', "Content-type": 'application/json'},
             body: JSON.stringify({
-                "username": username,
-                "password": password
+                "user": {
+                    "username": username,
+                    "password": password
+                }
             })
         })
 
         if (response.ok) {
             response = await response.json()
-            localStorage.setItem('Token', "Bearer " + response["token"])
+            localStorage.setItem('Token', "Bearer " + response["user"]["token"])
             app.msg = localStorage.getItem("Token")
             clearLoginPage()
             showMainPage()
             updateOrders()
         } else {
-
+            response = await response.json()
+            const username = document.getElementById("logLogin");
+            const password = document.getElementById("logPwd");
+            const logError = document.getElementById("logLoginError");
+            const pwdError = document.getElementById("logPwdError");
+            var usernameInvalid = false
+            var passwordInvalid = false
+            
+            if (response["user"]["non_field_errors"][0] == "Логин не существует"){
+                username.style.borderColor = 'red'
+                usernameInvalid = true
+                logError.style.visibility = "visible";
+                logError.textContent = response["user"]["non_field_errors"][0]
+            }
+          
+            if (response["user"]["non_field_errors"][0] == "Неверный пароль"){
+                passwordInvalid = true
+                password.style.borderColor = 'red'
+                pwdError.style.visibility = "visible";
+                pwdError.textContent = response["user"]["non_field_errors"][0]
+            }
         }
     }
 });
 
 const interval = setInterval(function () {
-    const url_ = 'http://localhost:8000/orders/'
-    const token = localStorage.getItem("Token")
+    // const url_ = 'http://localhost:8000/orders/'
+    // const token = localStorage.getItem("Token")
 
-    fetch(url_, {
-        method: "GET",
-        headers: {"Accept": 'application/json', "Content-type": 'application/json', "Authorization": token}
-    }).then(response => response.json()).then(data => {
-        updateOrders()
-    })
-
-
-}, 5000);
+    // fetch(url_, {
+    //     method: "GET",
+    //     headers: {"Accept": 'application/json', "Content-type": 'application/json', "Authorization": token}
+    // }).then(response => response.json()).then(data => {
+    //     updateOrders()
+    // })
+    console.log("dummy interval");
+}, 15000);
 
 document.getElementById("deleteAccount").addEventListener('click', async function () {
     const url_ = 'http://localhost:8000/me/'
@@ -612,49 +728,61 @@ document.getElementById("createNewOrder").addEventListener('click', function () 
 })
 
 function updateOrders() {
-    const url_ = 'http://localhost:8000/orders/'
-    const token = localStorage.getItem("Token")
+    console.log("dummy UPDATE ORDERS")
+    // const url_ = 'http://localhost:8000/orders/'
+    // const token = localStorage.getItem("Token")
 
-    fetch(url_, {
-        method: "GET",
-        headers: {"Accept": 'application/json', "Content-type": 'application/json', "Authorization": token}
-    }).then(response => response.json()).then(data => {
-        app.createdOrders = []
-        app.finishedOrders = []
-        data[0].forEach(cOrder => app.createdOrders.push(cOrder))
-        data[1].forEach(fOrder => app.finishedOrders.push(fOrder))
-    })
+    // fetch(url_, {
+    //     method: "GET",
+    //     headers: {"Accept": 'application/json', "Content-type": 'application/json', "Authorization": token}
+    // }).then(response => response.json()).then(data => {
+    //     app.createdOrders = []
+    //     app.finishedOrders = []
+    //     data[0].forEach(cOrder => app.createdOrders.push(cOrder))
+    //     data[1].forEach(fOrder => app.finishedOrders.push(fOrder))
+    // })
 }
 
 function getOrders(cOrders, fOrders) {
-    console.log("GET ORDERS")
-    const url_ = 'http://localhost:8000/orders/'
-    const token = localStorage.getItem("Token")
+    console.log("dummy GET ORDERS")
+    // const url_ = 'http://localhost:8000/orders/'
+    // const token = localStorage.getItem("Token")
 
-    fetch(url_, {
-        method: "GET",
-        headers: {"Accept": 'application/json', "Content-type": 'application/json', "Authorization": token}
-    }).then(response => response.json()).then(data => {
-        data[0].forEach(cOrder => cOrders.push(cOrder))
-        data[1].forEach(fOrder => fOrders.push(fOrder))
-    })
+    // fetch(url_, {
+    //     method: "GET",
+    //     headers: {"Accept": 'application/json', "Content-type": 'application/json', "Authorization": token}
+    // }).then(response => response.json()).then(data => {
+    //     data[0].forEach(cOrder => cOrders.push(cOrder))
+    //     data[1].forEach(fOrder => fOrders.push(fOrder))
+    // })
 }
 
 function sendOrder(m, s) {
-    const url = localStorage.getItem("url")
-    const url2 = localStorage.getItem("url2")
     const token = localStorage.getItem("Token")
+    const date1 = localStorage.getItem("date1")
+    const date2 = localStorage.getItem("date2")
+    const wktRepresentation = localStorage.getItem("wktRepresentation")
+
+    console.log(JSON.stringify({
+        "order": {
+            "imagery_start": date1,
+            "imagery_end": date2 === "null" ? null : date2,
+            "poly_wkt": wktRepresentation,
+            "crs": viewProjSelect
+        }
+    }))
 
     const url_ = 'http://localhost:8000/order/'
     fetch(url_, {
         method: "POST",
         headers: {"Accept": 'application/json', "Content-type": 'application/json', "Authorization": token},
         body: JSON.stringify({
-            "url": url === "null" ? null : url,
-            "url2": url2 === "null" ? null : url2,
-            "name": "Order" + Math.random(),
-            "model": '',
-            "satellite": ''
+            "order": {
+                "imagery_start": date1,
+                "imagery_end": date2 === "null" ? null : date2,
+                "poly_wkt": wktRepresentation,
+                "crs": viewProjSelect
+            }
         })
     }).then(response => response.json()).then(
         function (response) {
@@ -671,8 +799,6 @@ function sendOrder(m, s) {
     }
 
     map.setLayers(lst)
-    localStorage.setItem("url", null)
-    localStorage.setItem("url2", null)
 }
 
 function createStartDate0(startDate) {
@@ -702,8 +828,7 @@ function setUrl(startDate, finishDate, url, wktRepresentation) {
     const sent = 'b351739d-40a8-4e8a-b943-701ef8249e08'
     const layer = 'IW_VV_DB'
     console.log("SET_URL:", startDate, finishDate, url, wktRepresentation)
-    const pr = 'EPSG:3857'
-    my_str = `http://services.sentinel-hub.com/ogc/wms/${sent}?SERVICE=WMS&REQUEST=GetMap&CRS=${pr}&SHOWLOGO=false&VERSION=1.3.0&LAYERS=${layer}&MAXCC=1&WIDTH=256&HEIGHT=256&FORMAT=image/jpeg&TIME=${startDate}/${finishDate}&GEOMETRY=${wktRepresenation}`
+    my_str = `http://services.sentinel-hub.com/ogc/wms/${sent}?SERVICE=WMS&REQUEST=GetMap&CRS=${viewProjSelect}&SHOWLOGO=false&VERSION=1.3.0&LAYERS=${layer}&MAXCC=1&WIDTH=256&HEIGHT=256&FORMAT=image/jpeg&TIME=${startDate}/${finishDate}&GEOMETRY=${wktRepresentation}`
     localStorage.setItem(url, my_str)
 }
 function getFirstImage(startDate, finishDate) {
@@ -831,7 +956,24 @@ Vue.component('order-card-row', {
             map.removeInteraction(draw);
             map.removeInteraction(snap);
 
+            document.getElementById('clear').disabled = true;
+            document.getElementById('exportBtn').disabled = true;
+            document.getElementById('undo').disabled = true;
+            document.getElementById('abort').disabled = true;
+            document.getElementById('userShp').classList.add('text-secondary');
+            document.getElementById('userShp').classList.remove('text-primary');
+            var lst = [];
+            for (let i = 0, ii = map.getLayers().array_.length; i < ii; ++i) {
+                if (map.getLayers().array_[i].values_['zIndex'] !== 2 && map.getLayers().array_[i].values_['zIndex'] !== 0) {
+                    lst.push(map.getLayers().array_[i])
+                }
+            }
+            map.setLayers(lst);
+            document.getElementById('clearBtnI').disabled = true;
+            document.getElementById('userImg').classList.add('text-secondary');
+            document.getElementById('userImg').classList.remove('text-primary');
             source.clear();
+
         },
         selectModel() {
             if (document.getElementById("modelType").value === "ice") {
@@ -853,39 +995,40 @@ Vue.component('order-card-row', {
                 date2 = document.getElementById("finishDatepicker").value
             }
             var features = source.getFeatures();
-            var wktRepresenation;
+            var wktRepresentation;
             var Bound;
             if (features.length === 0) {
                 if (zoneOfInterest.length === 0) {
                     console.log("no shapes");
                 } else {
-                    wktRepresenation = varwkt;
+                    wktRepresentation = varwkt;
                     Bound = varbound;
                 }
             } else {
                 var format = new WKT();
                 var geom = [];
                 if (features.length === 1) {
-                    wktRepresenation = format.writeGeometry(features[0].getGeometry().clone().transform('EPSG:3857', 'EPSG:3857'));
+                    wktRepresentation = format.writeGeometry(features[0].getGeometry().clone().transform('EPSG:3857', 'EPSG:3857'));
                     Bound = features[0].getGeometry().getExtent();
                     console.log(Bound)
 
                     zoneOfInterest = features;
                     console.log(zoneOfInterest)
 
-                    varwkt = wktRepresenation;
+                    varwkt = wktRepresentation;
                     varbound = Bound;
                 } else {
                     var olGeom = new UnaryUnionOp(features[0].getGeometry(), features[1].getGeometry());
-                    wktRepresenation = format.writeGeometry(olGeom._geomFact);
+                    wktRepresentation = format.writeGeometry(olGeom._geomFact);
                     Bound = olGeom._geomFact.getExtent();
                 }
             }
 
             if (date1 !== "" && date2 !== "") {
-                setUrl(date1, date2, 'url', wktRepresenation)
-                localStorage.setItem("url2", null)
-
+                setUrl(date1, date2, 'url', wktRepresentation)
+                localStorage.setItem('date1', date1)
+                localStorage.setItem('date2', date2)
+                localStorage.setItem('wktRepresentation', wktRepresentation)
                 sendOrder('', '')
                 this.deleteEmptyOrder()
             }
@@ -904,6 +1047,10 @@ Vue.component('order-card-row', {
             if (date1.length > 0 && date2.length > 0) {
                 getFirstImage(date1, date2)
             }
+            
+            document.getElementById('clearBtnI').disabled = false;
+            document.getElementById('userImg').classList.remove('text-secondary');
+            document.getElementById('userImg').classList.add('text-primary');
         },
         show1() {
             if (this.show_1 === true) {
@@ -938,6 +1085,24 @@ Vue.component('order-card-row', {
                 });
                 draw.on('drawstart', function (evt) {
                     source.clear();
+                    if (val !== 'Circle'){
+                        document.getElementById('undo').disabled = false;
+                        document.getElementById('abort').disabled = false;
+                    }
+                }, this);
+                draw.on('drawend', function (evt) {
+                    document.getElementById('clear').disabled = false;
+
+                    document.getElementById('exportBtn').disabled = false;
+                    document.getElementById('exportBtnL').disabled = true;
+                    document.getElementById('clearBtnL').disabled = true;
+                    document.getElementById('clearBtnI').disabled = true;
+
+                    document.getElementById('undo').disabled = true;
+                    document.getElementById('abort').disabled = true;
+
+                    document.getElementById('userShp').classList.remove('text-secondary');
+                    document.getElementById('userShp').classList.add('text-primary');
                 }, this);
                 map.addInteraction(draw);
                 snap = new Snap({source: source});
@@ -1136,7 +1301,7 @@ var app = new Vue({
         finishedOrders: []
     },
     created: function () {
-        if (localStorage.getItem("Token") == null) {
+        if (localStorage.getItem("Token") == null || localStorage.getItem("Token") == 'Bearer undefined') {
             showLoginPage()
         } else {
             if (JSON.parse(atob(localStorage.getItem("Token").split('.')[1]))["exp"] < Date.now() / 1000) {
