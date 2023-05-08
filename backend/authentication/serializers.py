@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import update_last_login
 from rest_framework import serializers
 
+from showcase.models import Order
 from .models import User
 
 
@@ -99,6 +100,8 @@ class DeleteSerializer(serializers.Serializer):
             raise serializers.ValidationError('Invalid token provided.')
 
         username = user.username
+        for order in Order.objects.filter(owner=user.id):
+            order.delete()
         user.delete()
 
         return {
