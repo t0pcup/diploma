@@ -1,18 +1,31 @@
-from datetime import datetime
-from django.db import models
 import uuid
+from datetime import datetime
+
 import geopandas as gpd
+from django.db import models
 from shapely.errors import GEOSException
 from shapely.wkt import dumps
 
+from authentication.models import User
+
 
 class OrderManager(models.Manager):
-    def create_order(self, poly_wkt, imagery_start, crs='EPSG:3857', imagery_end=datetime.today().strftime('%Y-%m-%d')):
+    def create_order(self, poly_wkt, imagery_start, owner, crs='EPSG:3857',
+                     imagery_end=datetime.today().strftime('%Y-%m-%d')):
         if poly_wkt is None:
             raise TypeError('Orders must have a geometry.')
 
         if imagery_start is None:
             raise TypeError('Provide the date of imagery start.')
+
+        if owner is None:
+            raise TypeError('Order needs owner.')
+        try:
+            user = User.objects.get(id=owner)
+            if user is None:
+                raise TypeError('No such user.')
+        except:
+            raise TypeError('Invalid owner.')
 
         if crs not in ['EPSG:3857', 'EPSG:4326']:
             raise TypeError('Unsupported projection.')
@@ -25,23 +38,22 @@ class OrderManager(models.Manager):
 
         order = self.model(poly_wkt=str(poly),
                            crs=crs,
+                           owner=owner,
                            imagery_start=imagery_start,
                            imagery_end=imagery_end)
         order.save()
-        print(order)
         return order
 
 
 class Order(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid1, editable=False)
-
+    owner = models.CharField(max_length=255, null=False)
     poly_wkt = models.CharField(max_length=10485750, null=False)
     imagery_start = models.DateField(auto_now=False)
     imagery_end = models.DateField(default=datetime.today().strftime('%Y-%m-%d'), auto_now=False)
     crs = models.CharField(max_length=128, default='EPSG:3857')
 
     created_at = models.DateTimeField(auto_now_add=True)
-
     finished_at = models.DateTimeField(default=None, blank=True, null=True)
     predict = models.CharField(max_length=10485750, blank=True, null=True)
 

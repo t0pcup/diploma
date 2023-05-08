@@ -1,28 +1,33 @@
-import './style.css'
 // import {setupCounter} from './counter.js'
+// import 'bootstrap';
+// import ImageWMS from './node_modules/ol/source/ImageWMS.js';
+// import GeoTIFFSource from './node_modules/ol/source/GeoTIFF.js';
+// import {toSize} from './node_modules/ol/size.js';
+// import GPX from './node_modules/ol/format/GPX.js';
+// import IGC from './node_modules/ol/format/IGC.js';
+// import KML from './node_modules/ol/format/KML.js';
+// import TopoJSON from './node_modules/ol/format/TopoJSON.js';
+// import Geometry from "./node_modules/jsts/org/locationtech/jts/geom/Geometry.js";
+// import GeometryFactory from "./node_modules/jsts/org/locationtech/jts/geom/GeometryFactory.js";
+// import Bounds, Size
+// import {Extent} from "ol/interaction.js";
+// import {boundingExtent} from './node_modules/ol/extent';
+// import {or} from "ol/format/filter.js";
+import './style.css'
 import VectorSource from './node_modules/ol/source/Vector.js';
 import VectorLayer from './node_modules/ol/layer/Vector.js';
 import ImageLayer from './node_modules/ol/layer/Image.js';
 import ImageStatic from './node_modules/ol/source/ImageStatic.js';
-// import 'bootstrap';
 
 import WKT from './node_modules/ol/format/WKT.js';
-import ImageWMS from './node_modules/ol/source/ImageWMS.js';
-// import GeoTIFFSource from './node_modules/ol/source/GeoTIFF.js';
-import {toSize} from './node_modules/ol/size.js';
 import DragAndDrop from './node_modules/ol/interaction/DragAndDrop.js';
 import Map from './node_modules/ol/Map.js';
 import View from './node_modules/ol/View.js';
 import * as olProj from 'ol/proj';
-import GPX from './node_modules/ol/format/GPX.js';
 import GeoJSON from './node_modules/ol/format/GeoJSON.js';
-import IGC from './node_modules/ol/format/IGC.js';
-import KML from './node_modules/ol/format/KML.js';
-import TopoJSON from './node_modules/ol/format/TopoJSON.js';
 import TileLayer from './node_modules/ol/layer/Tile.js';
 import XYZ from './node_modules/ol/source/XYZ.js';
 import OSM from './node_modules/ol/source/OSM.js';
-import {Draw, Modify, Snap, Select} from './node_modules/ol/interaction.js';
 import {ScaleLine, defaults as defaultControls} from './node_modules/ol/control.js';
 import {createBox} from './node_modules/ol/interaction/Draw.js';
 import {
@@ -33,35 +38,38 @@ import {
 import MousePosition from './node_modules/ol/control/MousePosition.js';
 import {createStringXY} from './node_modules/ol/coordinate.js';
 import {
+    Draw, 
+    Modify, 
+    Snap, 
+    // Select
+} from './node_modules/ol/interaction.js';
+import {
     Circle as CircleStyle,
     Fill,
-    RegularShape,
+    // RegularShape,
     Stroke,
     Style,
-    Text,
+    Text
 } from './node_modules/ol/style.js';
 import UnaryUnionOp from "./node_modules/jsts/org/locationtech/jts/operation/union/UnaryUnionOp.js";
-import Geometry from "./node_modules/jsts/org/locationtech/jts/geom/Geometry.js";
-import GeometryFactory from "./node_modules/jsts/org/locationtech/jts/geom/GeometryFactory.js";
 import Feature from "./node_modules/ol/Feature.js";
-// import Bounds, Size
 
 import MultiPolygon from './node_modules/ol/geom/MultiPolygon.js';
 import Polygon from './node_modules/ol/geom/Polygon.js';
-import {Extent} from "ol/interaction.js";
-import {or} from "ol/format/filter.js";
 
-var zoneOfInterest = []
-var varwkt
-var varbound
+var zoneOfInterest = [];
+var varwkt;
+var varbound;
+// const attributions =
+//     '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> ' +
+//     '<a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>';
+//const viewProjSelect = document.getElementById('projection');
+// const projection = getProjection(viewProjSelect);
 
 const key = '4Z4vZj5CICocrdP4mCFb';
-const attributions =
-    '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> ' +
-    '<a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>';
-//const viewProjSelect = document.getElementById('projection');
 const viewProjSelect = "EPSG:3857";
-const projection = getProjection(viewProjSelect);
+const sent = 'b351739d-40a8-4e8a-b943-701ef8249e08';
+const layer = 'IW_VV_DB';
 const scaleControl = new ScaleLine({
     units: 'metric',
     bar: true,
@@ -137,7 +145,7 @@ precisionInput.addEventListener('change', function (event) {
     mousePositionControl2.setCoordinateFormat(format);
 });
 
-const extractStyles = document.getElementById('extract_styles');
+// const extractStyles = document.getElementById('extract_styles');
 let dragAndDropInteraction;
 var lst = [];
 
@@ -387,72 +395,72 @@ const modify = new Modify({source: source, style: modifyStyle});
 map.addInteraction(modify);
 let draw, snap;
 
-function onChangeProjection() {
-    const currentView = map.getView();
-    const currentProjection = currentView.getProjection();
-    const newProjection = getProjection(viewProjSelect.value);
-    const currentResolution = currentView.getResolution();
-    const currentCenter = currentView.getCenter();
-    const currentRotation = currentView.getRotation();
-    const newCenter = transform(currentCenter, currentProjection, newProjection);
-    const currentMPU = currentProjection.getMetersPerUnit();
-    const newMPU = newProjection.getMetersPerUnit();
-    const currentPointResolution =
-        getPointResolution(currentProjection, 1 / currentMPU, currentCenter, 'm') *
-        currentMPU;
-    const newPointResolution =
-        getPointResolution(newProjection, 1 / newMPU, newCenter, 'm') * newMPU;
-    const newResolution =
-        (currentResolution * currentPointResolution) / newPointResolution;
-    const newView = new View({
-        center: newCenter,
-        resolution: newResolution,
-        rotation: currentRotation,
-        projection: newProjection,
-    });
+// function onChangeProjection() {
+//     const currentView = map.getView();
+//     const currentProjection = currentView.getProjection();
+//     const newProjection = getProjection(viewProjSelect.value);
+//     const currentResolution = currentView.getResolution();
+//     const currentCenter = currentView.getCenter();
+//     const currentRotation = currentView.getRotation();
+//     const newCenter = transform(currentCenter, currentProjection, newProjection);
+//     const currentMPU = currentProjection.getMetersPerUnit();
+//     const newMPU = newProjection.getMetersPerUnit();
+//     const currentPointResolution =
+//         getPointResolution(currentProjection, 1 / currentMPU, currentCenter, 'm') *
+//         currentMPU;
+//     const newPointResolution =
+//         getPointResolution(newProjection, 1 / newMPU, newCenter, 'm') * newMPU;
+//     const newResolution =
+//         (currentResolution * currentPointResolution) / newPointResolution;
+//     const newView = new View({
+//         center: newCenter,
+//         resolution: newResolution,
+//         rotation: currentRotation,
+//         projection: newProjection,
+//     });
 
-    var remember = [];
-    for (let i = 0, ii = map.getLayers().array_.length; i < ii; ++i) {
-        if (map.getLayers().array_[i].values_['zIndex'] === 0) {
-            remember.push(map.getLayers().array_[i])
-        }
-    }
-    map.setView(newView);
-    map.setLayers([styles[styleSelector.value]]);
+//     var remember = [];
+//     for (let i = 0, ii = map.getLayers().array_.length; i < ii; ++i) {
+//         if (map.getLayers().array_[i].values_['zIndex'] === 0) {
+//             remember.push(map.getLayers().array_[i])
+//         }
+//     }
+//     map.setView(newView);
+//     map.setLayers([styles[styleSelector.value]]);
 
-    var features = source.getFeatures();
-    var wktRepresentation;
-    var Bound;
-    if (features.length === 0) {
-        console.log('no shapes');
-    } else {
-        var format = new WKT();
-        var geom;
-        if (features.length === 1) {
-            geom = features[0].getGeometry().clone().transform(currentProjection.code_, viewProjSelect.value)
-            wktRepresentation = format.writeGeometry(geom);
-            Bound = geom.getExtent();
-        }
-    }
+//     var features = source.getFeatures();
+//     var wktRepresentation;
+//     var Bound;
+//     if (features.length === 0) {
+//         console.log('no shapes');
+//     } else {
+//         var format = new WKT();
+//         var geom;
+//         if (features.length === 1) {
+//             geom = features[0].getGeometry().clone().transform(currentProjection.code_, viewProjSelect.value)
+//             wktRepresentation = format.writeGeometry(geom);
+//             Bound = geom.getExtent();
+//         }
+//     }
 
-//    if (remember.length > 0) { TODO 04.05.2023
-//        my_str = `http://services.sentinel-hub.com/ogc/wms/${sent_2}?SERVICE=WMS&REQUEST=GetMap&CRS=${viewProjSelect.value}&SHOWLOGO=false&VERSION=1.3.0&LAYERS=NATURAL-COLOR&MAXCC=1&WIDTH=256&HEIGHT=256&CRS=EPSG:3857&FORMAT=image/jpeg&TIME=2018-03-29/2018-05-29&GEOMETRY=${wktRepresentation}`
-//
-//        var img_ext = olProj.transformExtent(Bound, 'EPSG:3857', 'EPSG:3857') // EPSG:4326 3857
-//        var imageLayer = new ImageLayer({
-//            source: new ImageStatic({
-//                url: my_str,
-//                imageExtent: img_ext
-//            }),
-//            zIndex: 0
-//        });
-//        map.addLayer(imageLayer);
-//    }
-}
+// //    if (remember.length > 0) { TODO 04.05.2023
+// //        my_str = `http://services.sentinel-hub.com/ogc/wms/${sent_2}?SERVICE=WMS&REQUEST=GetMap&CRS=${viewProjSelect.value}&SHOWLOGO=false&VERSION=1.3.0&LAYERS=NATURAL-COLOR&MAXCC=1&WIDTH=256&HEIGHT=256&CRS=EPSG:3857&FORMAT=image/jpeg&TIME=2018-03-29/2018-05-29&GEOMETRY=${wktRepresentation}`
+// //
+// //        var img_ext = olProj.transformExtent(Bound, 'EPSG:3857', 'EPSG:3857') // EPSG:4326 3857
+// //        var imageLayer = new ImageLayer({
+// //            source: new ImageStatic({
+// //                url: my_str,
+// //                imageExtent: img_ext
+// //            }),
+// //            zIndex: 0
+// //        });
+// //        map.addLayer(imageLayer);
+// //    }
+// }
 
 
 // ----------------------------------------------------------------------
-const url = 'http://localhost:8000'
+const server_url = 'http://localhost:8000'
 
 function showRegisterPage() {
     $('#register_page').show()
@@ -501,31 +509,63 @@ function clearLoginPage() {
     document.getElementById("logPwdError").value = '';
 }
 
+function validateAccForm(){
+    const username = document.getElementById("login");
+    const password = document.getElementById("currPwd");
+    const logError = document.getElementById("loginError");
+    const pwdError = document.getElementById("currPwdError");
+    
+    var usernameInvalid = false;
+    var passwordInvalid = false;
+
+    if (username.value === '') {
+        username.style.borderColor = 'red';
+        usernameInvalid = true;
+        logError.style.visibility = "visible";
+        logError.textContent = "Поле 'Логин' не должно быть пустым";
+    } else {
+        username.style.borderColor = 'green';
+        logError.style.visibility = "hidden";
+    }
+
+    if (password.value === '') {
+        password.style.borderColor = 'red';
+        passwordInvalid = true;
+        pwdError.style.visibility = "visible";
+        pwdError.textContent = "Поле 'Пароль' не должно быть пустым";
+    } else {
+        password.style.borderColor = 'green';
+        pwdError.style.visibility = "hidden";
+    }
+
+    return !(usernameInvalid || passwordInvalid);
+}
+
 function validateLoginForm() {
     const username = document.getElementById("logLogin");
     const password = document.getElementById("logPwd");
     const logError = document.getElementById("logLoginError");
     const pwdError = document.getElementById("logPwdError");
-    var usernameInvalid = false
-    var passwordInvalid = false
+    var usernameInvalid = false;
+    var passwordInvalid = false;
 
     if (username.value === '') {
-        username.style.borderColor = 'red'
-        usernameInvalid = true
+        username.style.borderColor = 'red';
+        usernameInvalid = true;
         logError.style.visibility = "visible";
         logError.textContent = "Поле 'Логин' не должно быть пустым"
     } else {
-        username.style.borderColor = 'green'
+        username.style.borderColor = 'green';
         logError.style.visibility = "hidden";
     }
 
     if (password.value === '') {
-        password.style.borderColor = 'red'
-        passwordInvalid = true
+        password.style.borderColor = 'red';
+        passwordInvalid = true;
         pwdError.style.visibility = "visible";
-        pwdError.textContent = "Поле 'Пароль' не должно быть пустым"
+        pwdError.textContent = "Поле 'Пароль' не должно быть пустым";
     } else {
-        password.style.borderColor = 'green'
+        password.style.borderColor = 'green';
         pwdError.style.visibility = "hidden";
     }
 
@@ -537,26 +577,26 @@ function validateRegForm(){
     const password = document.getElementById("regPwd");
     const logError = document.getElementById("regLoginError");
     const pwdError = document.getElementById("regPwdError");
-    var usernameInvalid = false
-    var passwordInvalid = false
+    var usernameInvalid = false;
+    var passwordInvalid = false;
 
     if (username.value === '') {
-        username.style.borderColor = 'red'
-        usernameInvalid = true
+        username.style.borderColor = 'red';
+        usernameInvalid = true;
         logError.style.visibility = "visible";
-        logError.textContent = "Поле 'Логин' не должно быть пустым"
+        logError.textContent = "Поле 'Логин' не должно быть пустым";
     } else {
-        username.style.borderColor = 'green'
+        username.style.borderColor = 'green';
         logError.style.visibility = "hidden";
     }
 
     if (password.value === '') {
-        password.style.borderColor = 'red'
-        passwordInvalid = true
+        password.style.borderColor = 'red';
+        passwordInvalid = true;
         pwdError.style.visibility = "visible";
-        pwdError.textContent = "Поле 'Пароль' не должно быть пустым"
+        pwdError.textContent = "Поле 'Пароль' не должно быть пустым";
     } else {
-        password.style.borderColor = 'green'
+        password.style.borderColor = 'green';
         pwdError.style.visibility = "hidden";
     }
 
@@ -564,24 +604,24 @@ function validateRegForm(){
 }
 
 document.getElementById("logOut").addEventListener('click', function () {
-    clearLocalStorage()
-    showLoginPage()
+    clearLocalStorage();
+    showLoginPage();
 });
 
 document.getElementById("to_workbench_page").addEventListener('click', function () {
-    showMainPage()
+    showMainPage();
 });
 
 document.getElementById("to_acc_page").addEventListener('click', function () {
-    showAccountPage()
+    showAccountPage();
 });
 
 document.getElementById("to_register_page_from_log").addEventListener('click', function () {
-    showRegisterPage()
+    showRegisterPage();
 });
 
 document.getElementById("to_login_page_from_reg").addEventListener('click', function () {
-    showLoginPage()
+    showLoginPage();
 });
 
 document.getElementById("regSubmit").addEventListener('click', async function () {
@@ -593,7 +633,7 @@ document.getElementById("regSubmit").addEventListener('click', async function ()
         const name = document.getElementById("name").value.toString();
         const patronymic = document.getElementById("patronymic").value.toString();
 
-        const url_ = 'http://localhost:8000/register/'  // Done
+        const url_ = `${server_url}/register/`;  // Done
         
         let response = await fetch(url_, {
             method: "POST",
@@ -611,34 +651,34 @@ document.getElementById("regSubmit").addEventListener('click', async function ()
 
         if (response.ok) {
             response = await response.json()
-            clearLoginPage()
-            showLoginPage()
+            clearLoginPage();
+            showLoginPage();
         } else {
-            response = await response.json()
-            console.log(response["user"]["username"])
-            console.log(response["user"]["password"])
+            response = await response.json();
+            console.log(response["user"]["username"]);
+            console.log(response["user"]["password"]);
 
             const username = document.getElementById("regLogin");
             const password = document.getElementById("regPwd");
             const logError = document.getElementById("regLoginError");
             const pwdError = document.getElementById("regPwdError");
-            var usernameInvalid = false
-            var passwordInvalid = false
+            var usernameInvalid = false;
+            var passwordInvalid = false;
 
             if (response["user"]["username"] !== "undefined" && 
                 response["user"]["username"][0] == "user with this username already exists."){
-                username.style.borderColor = 'red'
-                usernameInvalid = true
+                username.style.borderColor = 'red';
+                usernameInvalid = true;
                 logError.style.visibility = "visible";
-                logError.textContent = "Логин занят"
+                logError.textContent = "Логин занят";
             }
 
             if (response["user"]["password"] !== "undefined" && 
                 response["user"]["password"][0] == "Ensure this field has at least 8 characters."){
-                    passwordInvalid = true
-                    password.style.borderColor = 'red'
+                    passwordInvalid = true;
+                    password.style.borderColor = 'red';
                     pwdError.style.visibility = "visible";
-                    pwdError.textContent = "Пароль должен содержать 8 символов"
+                    pwdError.textContent = "Пароль должен содержать 8 символов";
             }
         }
     }
@@ -649,7 +689,7 @@ document.getElementById("logSubmit").addEventListener('click', async function ()
         const username = document.getElementById("logLogin").value.toString();
         const password = document.getElementById("logPwd").value.toString();
 
-        const url_ = 'http://localhost:8000/login/'  // Done
+        const url_ = `${server_url}/login/`  // Done
         let response = await fetch(url_, {
             method: "POST",
             headers: {"Accept": 'application/json', "Content-type": 'application/json'},
@@ -662,53 +702,125 @@ document.getElementById("logSubmit").addEventListener('click', async function ()
         })
 
         if (response.ok) {
-            response = await response.json()
-            localStorage.setItem('Token', "Bearer " + response["user"]["token"])
-            app.msg = localStorage.getItem("Token")
-            clearLoginPage()
-            showMainPage()
-            updateOrders()
+            response = await response.json();
+            localStorage.setItem('Token', "Bearer " + response["user"]["token"]);
+            app.msg = localStorage.getItem("Token");
+            clearLoginPage();
+            showMainPage();
+            updateOrders();
         } else {
-            response = await response.json()
+            response = await response.json();
             const username = document.getElementById("logLogin");
             const password = document.getElementById("logPwd");
             const logError = document.getElementById("logLoginError");
             const pwdError = document.getElementById("logPwdError");
-            var usernameInvalid = false
-            var passwordInvalid = false
+            var usernameInvalid = false;
+            var passwordInvalid = false;
             
             if (response["user"]["non_field_errors"][0] == "Логин не существует"){
-                username.style.borderColor = 'red'
-                usernameInvalid = true
-                logError.style.visibility = "visible";
-                logError.textContent = response["user"]["non_field_errors"][0]
+                username.style.borderColor = 'red';
+                usernameInvalid = true;
+                logError.style.visibility = "visible";;
+                logError.textContent = response["user"]["non_field_errors"][0];
             }
           
             if (response["user"]["non_field_errors"][0] == "Неверный пароль"){
-                passwordInvalid = true
-                password.style.borderColor = 'red'
+                passwordInvalid = true;
+                password.style.borderColor = 'red';
                 pwdError.style.visibility = "visible";
-                pwdError.textContent = response["user"]["non_field_errors"][0]
+                pwdError.textContent = response["user"]["non_field_errors"][0];
+            }
+        }
+    }
+});
+
+document.getElementById("newSubmit").addEventListener('click', async function () { // TODO: PATCH
+    if (validateAccForm()) {
+        const username = document.getElementById("login").value.toString();
+        const password = document.getElementById("currPwd").value.toString();
+        const new_password = document.getElementById("newPwd").value.toString();
+        const surname = document.getElementById("newSurname").value.toString();
+        const name = document.getElementById("newName").value.toString();
+        const patronymic = document.getElementById("newPatronymic").value.toString();
+
+        const token = localStorage.getItem("Token");
+        const url_ = `${server_url}/user/`;  // Done
+
+        let response = await fetch(url_, {
+            method: "PATCH",
+            headers: {"Accept": 'application/json', "Content-type": 'application/json', "Authorization": token},
+            body: JSON.stringify({
+                "user": {
+                    "username": username,
+                    "password": password,
+                    "new_password": new_password == "" ? null : new_password,
+                    "name": name == "" ? null : name,
+                    "surname": surname == "" ? null : surname,
+                    "patronymic": patronymic == "" ? null : patronymic
+                }
+            })
+        });
+
+        if (response.ok) {
+            response = await response.json();
+            showAccountPage();
+        } else {
+            const username = document.getElementById("login");
+            const password = document.getElementById("currPwd");
+            const logError = document.getElementById("loginError");
+            const pwdError = document.getElementById("currPwdError");
+            var usernameInvalid = false;
+            var passwordInvalid = false;
+
+            console.log(response);
+            if (response.status == 400){
+                username.style.borderColor = 'red';
+                usernameInvalid = true;
+                logError.style.visibility = "visible";
+                logError.textContent = "Заполните поля, которые нужно изменить";
+            }
+
+            response = await response.json();
+            console.log(response["user"]["username"]);
+            console.log(response["user"]["password"]);
+
+            if (response["user"]["username"] !== undefined && 
+                response["user"]["username"][0] == "user with this username already exists."){
+                username.style.borderColor = 'red';
+                usernameInvalid = true;
+                logError.style.visibility = "visible";
+                logError.textContent = "Логин занят";
+            }
+
+            if (response["user"]["password"] !== "undefined" && 
+                response["user"]["password"][0] == "Ensure this field has at least 8 characters."){
+                    passwordInvalid = true;
+                    password.style.borderColor = 'red';
+                    pwdError.style.visibility = "visible";
+                    pwdError.textContent = "Пароль должен содержать 8 символов";
             }
         }
     }
 });
 
 const interval = setInterval(function () {
-    // const url_ = 'http://localhost:8000/orders/'
+    // const url_ = `${server_url}/orders/`
     // const token = localStorage.getItem("Token")
 
     // fetch(url_, {
     //     method: "GET",
     //     headers: {"Accept": 'application/json', "Content-type": 'application/json', "Authorization": token}
-    // }).then(response => response.json()).then(data => {
-    //     updateOrders()
+    // }).then(response => response).then(response => {
+    //     if (response.ok){
+    //         updateOrders()
+    //     } else {
+    //         console.log("INTERVAL ERR:\n", response)
+    //     }
     // })
-    console.log("dummy interval");
 }, 15000);
 
 document.getElementById("deleteAccount").addEventListener('click', async function () {
-    const url_ = 'http://localhost:8000/me/'
+    const url_ = `${server_url}/me/`
     const token = localStorage.getItem("Token")
 
     let response = await fetch(url_, {
@@ -729,7 +841,7 @@ document.getElementById("createNewOrder").addEventListener('click', function () 
 
 function updateOrders() {
     console.log("dummy UPDATE ORDERS")
-    // const url_ = 'http://localhost:8000/orders/'
+    // const url_ = `${server_url}/orders/`
     // const token = localStorage.getItem("Token")
 
     // fetch(url_, {
@@ -740,12 +852,15 @@ function updateOrders() {
     //     app.finishedOrders = []
     //     data[0].forEach(cOrder => app.createdOrders.push(cOrder))
     //     data[1].forEach(fOrder => app.finishedOrders.push(fOrder))
+
+    //     console.log(app.createdOrders[0])
+    //     console.log(app.finishedOrders[0])
     // })
 }
 
 function getOrders(cOrders, fOrders) {
     console.log("dummy GET ORDERS")
-    // const url_ = 'http://localhost:8000/orders/'
+    // const url_ = `${server_url}/orders/`
     // const token = localStorage.getItem("Token")
 
     // fetch(url_, {
@@ -757,7 +872,7 @@ function getOrders(cOrders, fOrders) {
     // })
 }
 
-function sendOrder(m, s) {
+function sendOrder() {
     const token = localStorage.getItem("Token")
     const date1 = localStorage.getItem("date1")
     const date2 = localStorage.getItem("date2")
@@ -772,7 +887,7 @@ function sendOrder(m, s) {
         }
     }))
 
-    const url_ = 'http://localhost:8000/order/'
+    const url_ = `${server_url}/order/` // Done
     fetch(url_, {
         method: "POST",
         headers: {"Accept": 'application/json', "Content-type": 'application/json', "Authorization": token},
@@ -820,15 +935,16 @@ function createStartDate0(startDate) {
 
     return [year, month, day].join('-')
 }
-function setUrl(startDate, finishDate, url, wktRepresentation) {
-    if (startDate.length === 0) {
-        startDate = "2020" + "-" + "06" + "-" + "02"
+function setUrl(start, fin, url, wkt_rep) {
+    if (start.length === 0) {
+        start = "2020" + "-" + "06" + "-" + "02"
     }
 
-    const sent = 'b351739d-40a8-4e8a-b943-701ef8249e08'
-    const layer = 'IW_VV_DB'
-    console.log("SET_URL:", startDate, finishDate, url, wktRepresentation)
-    my_str = `http://services.sentinel-hub.com/ogc/wms/${sent}?SERVICE=WMS&REQUEST=GetMap&CRS=${viewProjSelect}&SHOWLOGO=false&VERSION=1.3.0&LAYERS=${layer}&MAXCC=1&WIDTH=256&HEIGHT=256&FORMAT=image/jpeg&TIME=${startDate}/${finishDate}&GEOMETRY=${wktRepresentation}`
+    console.log("SET_URL:", start, fin, url, wkt_rep)
+
+    const basic = "SHOWLOGO=false&VERSION=1.3.0&MAXCC=1&WIDTH=256&HEIGHT=256&FORMAT=image/jpeg&SERVICE=WMS&REQUEST=GetMap"
+    const pref = "http://services.sentinel-hub.com/ogc/wms"
+    my_str = `${pref}/${sent}?CRS=${viewProjSelect}&LAYERS=${layer}&TIME=${start}/${fin}&GEOMETRY=${wkt_rep}&${basic}`
     localStorage.setItem(url, my_str)
 }
 function getFirstImage(startDate, finishDate) {
@@ -916,17 +1032,17 @@ Vue.component('order-card-row', {
                         '<p>Finish date: <input @change="pickedDate2()" type="date" id="finishDatepicker"></p>' +
         '           </div>' +
                 '</div>' +
-        '<button id="showImagesButton" @click="showImages()" class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample" style="margin-bottom: 10px;">Посмотреть</button>' +
+        '<button id="showImagesButton" @click="showImages()" class="btn btn-outline-primary btn-block" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample" style="margin-bottom: 10px;">Посмотреть</button>' +
         '<div style="align-items: center;\n' +
         '            text-align: center;"><table style="margin: 0 auto; ">' +
             '<tbody>' +
                 '<tr>' +
                     '<td>' +
-                        '<div v-if="show_1 == true && show_3 == true"><button @click="sendNewOrder()" class="btn btn-success m-1" style="">Отправить </button></div>' +
-                        '<div v-if="!(show_1 == true && show_3 == true)"><button @click="sendNewOrder()" class="btn btn-success m-1" disabled>Отправить</button></div>' +
+                        '<div v-if="show_1 == true && show_3 == true"><button @click="sendNewOrder()" class="btn btn-outline-success m-1 btn-block" style="">Отправить </button></div>' +
+                        '<div v-if="!(show_1 == true && show_3 == true)"><button @click="sendNewOrder()" class="btn btn-outline-success m-1 btn-block" disabled>Отправить</button></div>' +
                     '</td>' +
                     '<td>' +
-                        '<div><button @click="deleteEmptyOrder()" class="btn btn-danger">Удалить</button></div>' +
+                        '<div><button @click="deleteEmptyOrder()" class="btn btn-outline-danger btn-block">Удалить</button></div>' +
                     '</td>' +
                 '</tr>' +
             '</tbody>' +
@@ -951,8 +1067,12 @@ Vue.component('order-card-row', {
             this.show_3 = false;
             this.iceSelected = false
             document.getElementById("createNewOrder").disabled = false
-
-            document.getElementById('shapeType').value = 'None'
+            
+            try {
+                document.getElementById('shapeType').value = 'None'
+            } catch (ex){
+                const _ = 0
+            }
             map.removeInteraction(draw);
             map.removeInteraction(snap);
 
@@ -986,13 +1106,13 @@ Vue.component('order-card-row', {
 
         },
         sendNewOrder() {
-            let date1 = ""
-            let date2 = ""
+            let date1 = "";
+            let date2 = "";
             if (document.getElementById("startDatepicker") != null) {
-                date1 = document.getElementById("startDatepicker").value
+                date1 = document.getElementById("startDatepicker").value;
             }
             if (document.getElementById("finishDatepicker") != null) {
-                date2 = document.getElementById("finishDatepicker").value
+                date2 = document.getElementById("finishDatepicker").value;
             }
             var features = source.getFeatures();
             var wktRepresentation;
@@ -1006,14 +1126,13 @@ Vue.component('order-card-row', {
                 }
             } else {
                 var format = new WKT();
-                var geom = [];
                 if (features.length === 1) {
                     wktRepresentation = format.writeGeometry(features[0].getGeometry().clone().transform('EPSG:3857', 'EPSG:3857'));
                     Bound = features[0].getGeometry().getExtent();
-                    console.log(Bound)
+                    console.log(Bound);
 
                     zoneOfInterest = features;
-                    console.log(zoneOfInterest)
+                    console.log(zoneOfInterest);
 
                     varwkt = wktRepresentation;
                     varbound = Bound;
@@ -1025,12 +1144,12 @@ Vue.component('order-card-row', {
             }
 
             if (date1 !== "" && date2 !== "") {
-                setUrl(date1, date2, 'url', wktRepresentation)
-                localStorage.setItem('date1', date1)
-                localStorage.setItem('date2', date2)
-                localStorage.setItem('wktRepresentation', wktRepresentation)
-                sendOrder('', '')
-                this.deleteEmptyOrder()
+                setUrl(date1, date2, 'url', wktRepresentation);
+                localStorage.setItem('date1', date1);
+                localStorage.setItem('date2', date2);
+                localStorage.setItem('wktRepresentation', wktRepresentation);
+                sendOrder();
+                this.deleteEmptyOrder();
             }
         },
         showFirstDate() {
@@ -1051,6 +1170,10 @@ Vue.component('order-card-row', {
             document.getElementById('clearBtnI').disabled = false;
             document.getElementById('userImg').classList.remove('text-secondary');
             document.getElementById('userImg').classList.add('text-primary');
+
+            document.getElementById('exportBtn').disabled = true;
+            document.getElementById('userShp').classList.remove('text-primary');
+            document.getElementById('userShp').classList.add('text-secondary');
         },
         show1() {
             if (this.show_1 === true) {
@@ -1116,32 +1239,27 @@ Vue.component('order-row', {
     props: ['order', 'isReady'],
     template:
         '<div>' +
-            '<div v-if="order.status === false">' +
+            '<div v-if="order.finished_at === null">' +
                 '<div class="customCard" style="border: 1px solid red;">' +
-                    '<div v-if="order.status === true"><div style="color: green">ГОТОВО</div></div>' +
-                    '<div v-if="order.status === false"><div style="color: red">ВЫПОЛНЯЕТСЯ</div></div>' +
-                    '<div>Создан: {{new Date(order.createdAt).toLocaleString("ru-RU")}}</div>' +
-                    '<div v-if="order.status === true"><div>Завершен: {{new Date(order.finishedAt).toLocaleString("ru-RU")}}</div></div>' +
-                    '<div><button v-if="isReady === true" @click="showResult(order.result)" class="btn btn-primary m-1">РЕЗУЛЬТАТ</button></div>' +
-                    '<div><button v-if="isReady === true" @click="showImage(order.url, order.bbox)" class="btn btn-primary m-1">ПОКАЗАТЬ СНИМОК</button></div>' +
-                    '<div><button @click="deleteOrder(order)" class="btn btn-danger">Удалить заказ</button></div>' +
+                    '<div><div style="color: red">ВЫПОЛНЯЕТСЯ</div></div>' +
+                    '<div>Создан: {{new Date(order.created_at).toLocaleString("ru-RU")}}</div>' +
+                    '<div><button @click="deleteOrder(order)" class="btn btn-outline-danger">Удалить заказ</button></div>' +
                 '</div>' +
             '</div>' +
-            '<div v-if="order.status === true">' +
+            '<div v-if="order.finished_at !== null">' +
                 '<div class="customCard" style="border: 1px solid green;">' +
-                    '<div v-if="order.status === true"><div style="color: green">ГОТОВО</div></div>' +
-                    '<div v-if="order.status === false"><div style="color: red">ВЫПОЛНЯЕТСЯ</div></div>' +
-                    '<div>Создан: {{new Date(order.createdAt).toLocaleString("ru-RU")}}</div>' +
-                    '<div v-if="order.status === true"><div>Завершен: {{new Date(order.finishedAt).toLocaleString("ru-RU")}}</div></div>' +
-                    '<div><button v-if="isReady === true" @click="showResult(order.result)" class="btn btn-primary m-1">РЕЗУЛЬТАТ</button></div>' +
-                    '<div><button v-if="isReady === true" @click="showImage(order.url, order.bbox)" class="btn btn-primary m-1">ПОКАЗАТЬ СНИМОК</button></div>' +
-                    '<div><button @click="deleteOrder(order)" class="btn btn-danger">Удалить заказ</button></div>' +
+                    '<div><div style="color: green">ГОТОВО</div></div>' +
+                    '<div>Создан: {{new Date(order.created_at).toLocaleString("ru-RU")}}</div>' +
+                    '<div v-if="order.finished_at !== null"><div>Завершен: {{new Date(order.finished_at).toLocaleString("ru-RU")}}</div></div>' +
+                    '<div><button  v-if="order.finished_at !== null" @click="showResult(order.predict)" class="btn btn-primary m-1">Результат</button></div>' +
+                    '<div><button  v-if="order.finished_at !== null" @click="showImage(order.poly_wkt, order.imagery_start, order.imagery_end)" class="btn btn-outline-primary m-1">Снимок</button></div>' +
+                    '<div><button @click="deleteOrder(order)" class="btn btn-outline-danger">Удалить заказ</button></div>' +
                 '</div>' +
             '</div>' +
         '</div>',
     methods: {
         deleteOrder(order) {
-            const url_ = 'http://localhost:8000/orders?order_id=' + order.id
+            const url_ = `${server_url}/orders?order_id=` + order.id
             const token = localStorage.getItem("Token")
 
             fetch(url_, {
@@ -1169,8 +1287,8 @@ Vue.component('order-row', {
 
             map.setLayers(lst)
         },
-        showImage(res, b) {
-            const bbox = b.split(', ').map(Number);
+        showImage(poly_wkt, imagery_start, imagery_end) {
+            const poly_crs = "EPSG:4326"
 
             var lst = [];
             for (let i = 0, ii = map.getLayers().array_.length; i < ii; ++i) {
@@ -1178,40 +1296,33 @@ Vue.component('order-row', {
                     lst.push(map.getLayers().array_[i])
                 }
             }
+            map.setLayers(lst);
 
-            map.setLayers(lst)
+            const feature = new WKT().readFeature(poly_wkt, {
+              dataProjection: poly_crs,
+              featureProjection: viewProjSelect,
+            });
+            const new_wkt = new WKT().writeGeometry(feature.getGeometry());
 
-            var features = source.getFeatures();
-            var wktRepresentation;
-            var Bound;
-            if (features.length === 0) {
-                console.log('no shapes');
-                Bound = bbox;
-            } else {
-                var format = new WKT();
-                var geom = [];
-                if (features.length === 1) {
-                    wktRepresentation = format.writeGeometry(features[0].getGeometry().clone().transform('EPSG:3857', 'EPSG:3857'));
-                    Bound = features[0].getGeometry().getExtent();
-                } else {
-                    var olGeom = new UnaryUnionOp(features[0].getGeometry(), features[1].getGeometry());
-                    wktRepresentation = format.writeGeometry(olGeom._geomFact);
-                    Bound = olProj.transformExtent(olGeom._geomFact.getExtent(), 'EPSG:3857', 'EPSG:3857');
-                }
-            }
-
-            my_str = res.replace('tiff', 'jpeg')
-            var img_ext = Bound
-
+            const basic = "SERVICE=WMS&REQUEST=GetMap&SHOWLOGO=false&VERSION=1.3.0&MAXCC=1&WIDTH=256&HEIGHT=256&FORMAT=image/jpeg"
+            const vary = `CRS=${viewProjSelect}&LAYERS=${layer}&TIME=${imagery_start}/${imagery_end}&GEOMETRY=${new_wkt}`
             var imageLayer = new ImageLayer({
                 source: new ImageStatic({
-                    url: my_str,
-                    imageExtent: img_ext // east, north, west, south
+                    url: `http://services.sentinel-hub.com/ogc/wms/${sent}?${vary}&${basic}`,
+                    imageExtent: feature.getGeometry().getExtent() // east, north, west, south
                 }),
                 zIndex: 2
             });
             map.addLayer(imageLayer);
             source.clear();
+
+            document.getElementById('clearBtnI').disabled = false;
+            document.getElementById('userImg').classList.remove('text-secondary');
+            document.getElementById('userImg').classList.add('text-primary');
+
+            document.getElementById('exportBtn').disabled = true;
+            document.getElementById('userShp').classList.remove('text-primary');
+            document.getElementById('userShp').classList.add('text-secondary');
         },
         showResult(res) {
             var lst_keep = [];
