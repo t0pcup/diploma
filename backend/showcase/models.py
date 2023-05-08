@@ -48,14 +48,14 @@ class OrderManager(models.Manager):
 class Order(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid1, editable=False)
     owner = models.CharField(max_length=255, null=False)
+    crs = models.CharField(max_length=128, default='EPSG:3857')
     poly_wkt = models.CharField(max_length=10485750, null=False)
+    predict = models.CharField(max_length=10485750, blank=True, null=True)
+
     imagery_start = models.DateField(auto_now=False)
     imagery_end = models.DateField(default=datetime.today().strftime('%Y-%m-%d'), auto_now=False)
-    crs = models.CharField(max_length=128, default='EPSG:3857')
-
     created_at = models.DateTimeField(auto_now_add=True)
     finished_at = models.DateTimeField(default=None, blank=True, null=True)
-    predict = models.CharField(max_length=10485750, blank=True, null=True)
 
     objects = OrderManager()
 
@@ -64,7 +64,3 @@ class Order(models.Model):
         f = [self.poly_wkt, self.imagery_start, self.imagery_end, self.crs, self.created_at, self.finished_at,
              self.predict]
         return '\nORDER:' + ' '.join(map(str, f)) + '\n'
-
-    # def delete(self, using=None, keep_parents=False):
-    #     self.is_active = False
-    #     super().delete()

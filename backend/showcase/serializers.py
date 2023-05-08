@@ -1,8 +1,5 @@
-import uuid
-
-from django.contrib.auth import authenticate
 from rest_framework import serializers
-from datetime import datetime
+
 from .models import Order
 
 
@@ -22,3 +19,14 @@ class GetAllSerializer(serializers.Serializer):
         model = Order
         fields = ['owner', 'poly_wkt', 'crs', 'imagery_start', 'imagery_end', 'id',
                   'created_at', 'finished_at', 'predict']
+
+
+class DelOrderSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+
+    def validate(self, data):
+        order = Order.objects.get(id=data['id'])
+        id_cp = order.id
+        order.delete()
+
+        return {'id': id_cp}

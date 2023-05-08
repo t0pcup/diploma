@@ -488,6 +488,18 @@ function showAccountPage() {
     $('#login_page').hide()
     $('#workbench_page').hide()
     $('#account_page').show()
+    
+    document.getElementById("login").style.borderColor = '';
+    document.getElementById("currPwd").style.borderColor = '';
+    document.getElementById("newPwd").style.borderColor = '';
+
+    document.getElementById("loginError").visibility = "hidden";
+    document.getElementById("currPwdError").visibility = "hidden";
+    document.getElementById("newPwdError").visibility = "hidden";
+    // document.getElementById("logLogin").value = ''
+    // document.getElementById("logPwd").value = ''
+    // document.getElementById("logLogin").style.borderColor = ''
+    // document.getElementById("logPwd").style.borderColor = ''
 }
 
 function clearLocalStorage() {
@@ -515,8 +527,24 @@ function validateAccForm(){
     const logError = document.getElementById("loginError");
     const pwdError = document.getElementById("currPwdError");
     
+    const new_password = document.getElementById("newPwd");
+    const new_pwdError = document.getElementById("newPwdError");
+
     var usernameInvalid = false;
     var passwordInvalid = false;
+    var new_passwordInvalid = false;
+
+    if (new_password.value !== '' && new_password.value.length < 8){
+        new_password.style.borderColor = 'red';
+        new_pwdError.style.visibility = "visible";
+        new_passwordInvalid = true;
+        new_pwdError.textContent = "Новый пароль должен быть не менее 8 символов";
+    } else {
+        if (new_password.value !== ''){
+            new_password.style.borderColor = 'green';
+        }
+        new_pwdError.style.visibility = "hidden";
+    }
 
     if (username.value === '') {
         username.style.borderColor = 'red';
@@ -538,7 +566,7 @@ function validateAccForm(){
         pwdError.style.visibility = "hidden";
     }
 
-    return !(usernameInvalid || passwordInvalid);
+    return !(usernameInvalid || passwordInvalid || new_passwordInvalid);
 }
 
 function validateLoginForm() {
@@ -628,7 +656,6 @@ document.getElementById("regSubmit").addEventListener('click', async function ()
     if (validateRegForm()) {
         const username = document.getElementById("regLogin").value.toString();
         const password = document.getElementById("regPwd").value.toString();
-        // const confirmed = document.getElementById("repeatPwd").value.toString();
         const surname = document.getElementById("surname").value.toString();
         const name = document.getElementById("name").value.toString();
         const patronymic = document.getElementById("patronymic").value.toString();
@@ -642,8 +669,8 @@ document.getElementById("regSubmit").addEventListener('click', async function ()
                 "user": {
                     "username": username,
                     "password": password,
-                    "name": name == "" ? null : patronymic,
-                    "surname": surname == "" ? null : patronymic,
+                    "name": name == "" ? null : name,
+                    "surname": surname == "" ? null : surname,
                     "patronymic": patronymic == "" ? null : patronymic
                 }
             })
@@ -764,59 +791,78 @@ document.getElementById("newSubmit").addEventListener('click', async function ()
         if (response.ok) {
             response = await response.json();
             showAccountPage();
+            if (new_password !== "") {
+                document.getElementById("newPwd").style.borderColor = 'green';
+            }
+            
+            if (name !== "") {
+                document.getElementById("newName").style.borderColor = 'green';
+            }
+            
+            if (surname !== "") {
+                document.getElementById("newSurname").style.borderColor = 'green';
+            }
+            
+            if (patronymic !== "") {
+                document.getElementById("newPatronymic").style.borderColor = 'green';
+            }
+        
         } else {
             const username = document.getElementById("login");
             const password = document.getElementById("currPwd");
             const logError = document.getElementById("loginError");
             const pwdError = document.getElementById("currPwdError");
-            var usernameInvalid = false;
-            var passwordInvalid = false;
 
             console.log(response);
             if (response.status == 400){
                 username.style.borderColor = 'red';
-                usernameInvalid = true;
                 logError.style.visibility = "visible";
+                password.style.borderColor = 'red';
+                pwdError.style.visibility = "visible";
                 logError.textContent = "Заполните поля, которые нужно изменить";
+                pwdError.textContent = "Заполните поля, которые нужно изменить";
+            }
+            
+            if (response.status == 403){
+                username.style.borderColor = 'red';
+                logError.style.visibility = "visible";
+                password.style.borderColor = 'red';
+                pwdError.style.visibility = "visible";
+                logError.textContent = "Неправильные данные для входа";
+                pwdError.textContent = "Неправильные данные для входа";
+            }
+            
+            if (response.status == 401){
+                username.style.borderColor = 'red';
+                logError.style.visibility = "visible";
+                password.style.borderColor = 'red';
+                pwdError.style.visibility = "visible";
+                logError.textContent = "Вы не вошли в аккаунт";
+                pwdError.textContent = "Вы не вошли в аккаунт";
+                showLoginPage();
             }
 
             response = await response.json();
             console.log(response["user"]["username"]);
             console.log(response["user"]["password"]);
-
-            if (response["user"]["username"] !== undefined && 
-                response["user"]["username"][0] == "user with this username already exists."){
-                username.style.borderColor = 'red';
-                usernameInvalid = true;
-                logError.style.visibility = "visible";
-                logError.textContent = "Логин занят";
-            }
-
-            if (response["user"]["password"] !== "undefined" && 
-                response["user"]["password"][0] == "Ensure this field has at least 8 characters."){
-                    passwordInvalid = true;
-                    password.style.borderColor = 'red';
-                    pwdError.style.visibility = "visible";
-                    pwdError.textContent = "Пароль должен содержать 8 символов";
-            }
         }
     }
 });
 
 const interval = setInterval(function () {
-    // const url_ = `${server_url}/orders/`
-    // const token = localStorage.getItem("Token")
+    const url_ = `${server_url}/orders/`
+    const token = localStorage.getItem("Token")
 
-    // fetch(url_, {
-    //     method: "GET",
-    //     headers: {"Accept": 'application/json', "Content-type": 'application/json', "Authorization": token}
-    // }).then(response => response).then(response => {
-    //     if (response.ok){
-    //         updateOrders()
-    //     } else {
-    //         console.log("INTERVAL ERR:\n", response)
-    //     }
-    // })
+    fetch(url_, {
+        method: "GET",
+        headers: {"Accept": 'application/json', "Content-type": 'application/json', "Authorization": token}
+    }).then(response => response).then(response => {
+        if (response.ok){
+            updateOrders()
+        } else {
+            console.log("INTERVAL ERR:\n", response)
+        }
+    })
 }, 15000);
 
 document.getElementById("deleteAccount").addEventListener('click', async function () {
@@ -835,41 +881,42 @@ document.getElementById("deleteAccount").addEventListener('click', async functio
 });
 
 document.getElementById("createNewOrder").addEventListener('click', function () {
-    app.orders.push(1)
-    document.getElementById("createNewOrder").disabled = true
+    app.orders.push(1);
+    document.getElementById("createNewOrder").disabled = true;
+    updateOrders();
 })
 
 function updateOrders() {
     console.log("dummy UPDATE ORDERS")
-    // const url_ = `${server_url}/orders/`
-    // const token = localStorage.getItem("Token")
+    const url_ = `${server_url}/orders/`
+    const token = localStorage.getItem("Token")
 
-    // fetch(url_, {
-    //     method: "GET",
-    //     headers: {"Accept": 'application/json', "Content-type": 'application/json', "Authorization": token}
-    // }).then(response => response.json()).then(data => {
-    //     app.createdOrders = []
-    //     app.finishedOrders = []
-    //     data[0].forEach(cOrder => app.createdOrders.push(cOrder))
-    //     data[1].forEach(fOrder => app.finishedOrders.push(fOrder))
+    fetch(url_, {
+        method: "GET",
+        headers: {"Accept": 'application/json', "Content-type": 'application/json', "Authorization": token}
+    }).then(response => response.json()).then(data => {
+        app.createdOrders = []
+        app.finishedOrders = []
+        data[0].forEach(cOrder => app.createdOrders.push(cOrder))
+        data[1].forEach(fOrder => app.finishedOrders.push(fOrder))
 
-    //     console.log(app.createdOrders[0])
-    //     console.log(app.finishedOrders[0])
-    // })
+        console.log(app.createdOrders[0])
+        console.log(app.finishedOrders[0])
+    })
 }
 
 function getOrders(cOrders, fOrders) {
     console.log("dummy GET ORDERS")
-    // const url_ = `${server_url}/orders/`
-    // const token = localStorage.getItem("Token")
+    const url_ = `${server_url}/orders/`
+    const token = localStorage.getItem("Token")
 
-    // fetch(url_, {
-    //     method: "GET",
-    //     headers: {"Accept": 'application/json', "Content-type": 'application/json', "Authorization": token}
-    // }).then(response => response.json()).then(data => {
-    //     data[0].forEach(cOrder => cOrders.push(cOrder))
-    //     data[1].forEach(fOrder => fOrders.push(fOrder))
-    // })
+    fetch(url_, {
+        method: "GET",
+        headers: {"Accept": 'application/json', "Content-type": 'application/json', "Authorization": token}
+    }).then(response => response.json()).then(data => {
+        data[0].forEach(cOrder => cOrders.push(cOrder))
+        data[1].forEach(fOrder => fOrders.push(fOrder))
+    })
 }
 
 function sendOrder() {
@@ -1259,13 +1306,15 @@ Vue.component('order-row', {
         '</div>',
     methods: {
         deleteOrder(order) {
-            const url_ = `${server_url}/orders?order_id=` + order.id
-            const token = localStorage.getItem("Token")
+            const url_ = `${server_url}/del-order/`
+            const auth = `${localStorage.getItem("Token")}\torder-id ${order.id}`
 
             fetch(url_, {
                 method: "DELETE",
-                headers: {"Accept": 'application/json', "Content-type": 'application/json', "Authorization": token}
-            }).then(response => response.json())
+                headers: {"Accept": 'application/json', "Content-type": 'application/json', "Authorization": auth}
+            }).then(response => {
+                console.log(response);
+            })
 
             var index = app.createdOrders.indexOf(order);
             if (index !== -1) {

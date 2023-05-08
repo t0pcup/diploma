@@ -1,7 +1,7 @@
+import uuid
 from datetime import datetime, timedelta
 
 import jwt
-import uuid
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
@@ -19,6 +19,25 @@ class UserManager(BaseUserManager):
         user = self.model(username=username, name=name, surname=surname, patronymic=patronymic)
         user.set_password(password)
         user.save()
+        return user
+
+    def update_user(self, username, password, new_password=None, name=None, surname=None, patronymic=None):
+        """ Изменяет и возвращает пользователя. """
+        user = self.model.objects.get(username=username)
+        if new_password is not None:
+            user.set_password(new_password)
+
+        if name is not None and user.name != name:
+            user.name = name
+
+        if surname is not None and user.surname != surname:
+            user.surname = surname
+
+        if patronymic is not None and user.patronymic != patronymic:
+            user.patronymic = patronymic
+
+        user.save()
+        print(user.name, user.surname, user.patronymic)
         return user
 
     def create_superuser(self, username, password):
@@ -44,17 +63,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     patronymic = models.CharField(max_length=255, default='', null=True, blank=True)
 
     is_active = models.BooleanField(default=True)
-
     is_staff = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
-
     updated_at = models.DateTimeField(auto_now=True)
 
-    # Свойство USERNAME_FIELD сообщает нам, какое поле мы будем использовать
-    # для входа в систему. В данном случае мы хотим использовать почту.
     USERNAME_FIELD = 'username'
-    # REQUIRED_FIELDS = ['username']
 
     objects = UserManager()
 

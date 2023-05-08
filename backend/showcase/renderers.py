@@ -1,6 +1,7 @@
 import json
 
 from rest_framework.renderers import JSONRenderer
+
 from .models import Order
 
 
@@ -13,9 +14,7 @@ class OrderJSONRenderer(JSONRenderer):
         if token is not None and isinstance(token, bytes):
             data['token'] = token.decode('utf-8')
 
-        return json.dumps({
-            'order': data
-        })
+        return json.dumps({'order': data})
 
 
 class OrdersJSONRenderer(JSONRenderer):
@@ -38,3 +37,10 @@ class OrdersJSONRenderer(JSONRenderer):
                 ready.append(d_o)
 
         return json.dumps([not_ready, ready])
+
+
+class DelOrderRenderer(JSONRenderer):
+    charset = 'utf-8'
+
+    def render(self, data, media_type=None, renderer_context=None):
+        return json.dumps(data)
