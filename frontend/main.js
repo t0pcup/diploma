@@ -275,7 +275,6 @@ document.getElementById("exportBtn").addEventListener('click', function () {
         a.click();
         a.remove();
     }
-    console.log(json)
     download(json, 'feature_export_3857.json', 'application/json');
 
     var json = new GeoJSON().writeFeatures(features, {
@@ -289,21 +288,20 @@ document.getElementById("exportBtn").addEventListener('click', function () {
             a.click();
             a.remove();
         }
-        console.log(json)
         download(json, 'feature_export_4326.json', 'application/json');
 });
 document.getElementById("exportBtnL").addEventListener('click', function () {
     var lst = [];
-    console.log(map.getLayers().array_)
 
     for (let i = 0, ii = map.getLayers().array_.length; i < ii; ++i) {
         if (map.getLayers().array_[i].values_['zIndex'] === 1 || map.getLayers().array_[i].values_['zIndex'] === 3) {
             lst.push(map.getLayers().array_[i])
         }
     }
-    console.log(lst)
+
     var f_lst = []
     var feat = []
+
     for (let i = 0; i < lst.length; i++) {
         f_lst.push(lst[i].getSource().getFeatures());
     }
@@ -660,7 +658,7 @@ document.getElementById("regSubmit").addEventListener('click', async function ()
         const name = document.getElementById("name").value.toString();
         const patronymic = document.getElementById("patronymic").value.toString();
 
-        const url_ = `${server_url}/register/`;  // Done
+        const url_ = `${server_url}/register/`;
         
         let response = await fetch(url_, {
             method: "POST",
@@ -677,13 +675,12 @@ document.getElementById("regSubmit").addEventListener('click', async function ()
         })
 
         if (response.ok) {
-            response = await response.json()
+            response = await response.json();
             clearLoginPage();
             showLoginPage();
         } else {
+            console.log(response);
             response = await response.json();
-            console.log(response["user"]["username"]);
-            console.log(response["user"]["password"]);
 
             const username = document.getElementById("regLogin");
             const password = document.getElementById("regPwd");
@@ -716,7 +713,7 @@ document.getElementById("logSubmit").addEventListener('click', async function ()
         const username = document.getElementById("logLogin").value.toString();
         const password = document.getElementById("logPwd").value.toString();
 
-        const url_ = `${server_url}/login/`  // Done
+        const url_ = `${server_url}/login/`;
         let response = await fetch(url_, {
             method: "POST",
             headers: {"Accept": 'application/json', "Content-type": 'application/json'},
@@ -771,7 +768,7 @@ document.getElementById("newSubmit").addEventListener('click', async function ()
         const patronymic = document.getElementById("newPatronymic").value.toString();
 
         const token = localStorage.getItem("Token");
-        const url_ = `${server_url}/user/`;  // Done
+        const url_ = `${server_url}/user/`;
 
         let response = await fetch(url_, {
             method: "PATCH",
@@ -843,24 +840,22 @@ document.getElementById("newSubmit").addEventListener('click', async function ()
             }
 
             response = await response.json();
-            console.log(response["user"]["username"]);
-            console.log(response["user"]["password"]);
         }
     }
 });
 
 const interval = setInterval(function () {
-    const url_ = `${server_url}/orders/`
-    const token = localStorage.getItem("Token")
+    const url_ = `${server_url}/orders/`;
+    const token = localStorage.getItem("Token");
 
     fetch(url_, {
         method: "GET",
         headers: {"Accept": 'application/json', "Content-type": 'application/json', "Authorization": token}
     }).then(response => response).then(response => {
         if (response.ok){
-            updateOrders()
+            updateOrders();
         } else {
-            console.log("INTERVAL ERR:\n", response)
+            console.log("INTERVAL ERR:\n", response);
         }
     })
 }, 15000);
@@ -887,9 +882,9 @@ document.getElementById("createNewOrder").addEventListener('click', function () 
 })
 
 function updateOrders() {
-    console.log("dummy UPDATE ORDERS")
-    const url_ = `${server_url}/orders/`
-    const token = localStorage.getItem("Token")
+    console.log("UPDATE ORDERS");
+    const url_ = `${server_url}/orders/`;
+    const token = localStorage.getItem("Token");
 
     fetch(url_, {
         method: "GET",
@@ -899,16 +894,13 @@ function updateOrders() {
         app.finishedOrders = []
         data[0].forEach(cOrder => app.createdOrders.push(cOrder))
         data[1].forEach(fOrder => app.finishedOrders.push(fOrder))
-
-        console.log(app.createdOrders[0])
-        console.log(app.finishedOrders[0])
     })
 }
 
 function getOrders(cOrders, fOrders) {
-    console.log("dummy GET ORDERS")
-    const url_ = `${server_url}/orders/`
-    const token = localStorage.getItem("Token")
+    console.log("GET ORDERS");
+    const url_ = `${server_url}/orders/`;
+    const token = localStorage.getItem("Token");
 
     fetch(url_, {
         method: "GET",
@@ -925,16 +917,7 @@ function sendOrder() {
     const date2 = localStorage.getItem("date2")
     const wktRepresentation = localStorage.getItem("wktRepresentation")
 
-    console.log(JSON.stringify({
-        "order": {
-            "imagery_start": date1,
-            "imagery_end": date2 === "null" ? null : date2,
-            "poly_wkt": wktRepresentation,
-            "crs": viewProjSelect
-        }
-    }))
-
-    const url_ = `${server_url}/order/` // Done
+    const url_ = `${server_url}/order/`;
     fetch(url_, {
         method: "POST",
         headers: {"Accept": 'application/json', "Content-type": 'application/json', "Authorization": token},
@@ -946,10 +929,11 @@ function sendOrder() {
                 "crs": viewProjSelect
             }
         })
-    }).then(response => response.json()).then(
-        function (response) {
-            console.log(response)
-            updateOrders()
+    }).then(response => {
+            if (!response.ok) {
+                console.log(response);
+            }
+            updateOrders();
         }
     )
 
@@ -963,31 +947,30 @@ function sendOrder() {
     map.setLayers(lst)
 }
 
-function createStartDate0(startDate) {
-    if (startDate.length === 0) {
-        startDate = "2020" + "-" + "06" + "-" + "02"
-    }
+// function createStartDate0(startDate) {
+//     if (startDate.length === 0) {
+//         startDate = "2020" + "-" + "06" + "-" + "02"
+//     }
 
-    const date = new Date(startDate);
-    const year = date.getFullYear();
-    let month = date.getMonth() + 1;
-    let day = date.getDate();
+//     const date = new Date(startDate);
+//     const year = date.getFullYear();
+//     let month = date.getMonth() + 1;
+//     let day = date.getDate();
 
-    if (month < 10) {
-        month = "0" + month.toString();
-    }
-    if (day < 10) {
-        day = "0" + day.toString();
-    }
+//     if (month < 10) {
+//         month = "0" + month.toString();
+//     }
+//     if (day < 10) {
+//         day = "0" + day.toString();
+//     }
 
-    return [year, month, day].join('-')
-}
+//     return [year, month, day].join('-')
+// }
+
 function setUrl(start, fin, url, wkt_rep) {
     if (start.length === 0) {
         start = "2020" + "-" + "06" + "-" + "02"
     }
-
-    console.log("SET_URL:", start, fin, url, wkt_rep)
 
     const basic = "SHOWLOGO=false&VERSION=1.3.0&MAXCC=1&WIDTH=256&HEIGHT=256&FORMAT=image/jpeg&SERVICE=WMS&REQUEST=GetMap"
     const pref = "http://services.sentinel-hub.com/ogc/wms"
@@ -1176,10 +1159,8 @@ Vue.component('order-card-row', {
                 if (features.length === 1) {
                     wktRepresentation = format.writeGeometry(features[0].getGeometry().clone().transform('EPSG:3857', 'EPSG:3857'));
                     Bound = features[0].getGeometry().getExtent();
-                    console.log(Bound);
 
                     zoneOfInterest = features;
-                    console.log(zoneOfInterest);
 
                     varwkt = wktRepresentation;
                     varbound = Bound;
@@ -1208,6 +1189,14 @@ Vue.component('order-card-row', {
             getSecondImage(document.getElementById("finishDatepicker").value, sat)
         },
         showImages() {
+            var lst = [];
+            for (let i = 0, ii = map.getLayers().array_.length; i < ii; ++i) {
+                if (map.getLayers().array_[i].values_['zIndex'] !== 2) {
+                    lst.push(map.getLayers().array_[i])
+                }
+            }
+            map.setLayers(lst);
+
             const date1 = document.getElementById("startDatepicker").value
             const date2 = document.getElementById("finishDatepicker").value
             if (date1.length > 0 && date2.length > 0) {
@@ -1313,7 +1302,9 @@ Vue.component('order-row', {
                 method: "DELETE",
                 headers: {"Accept": 'application/json', "Content-type": 'application/json', "Authorization": auth}
             }).then(response => {
-                console.log(response);
+                if (!response.ok) {
+                    console.log(response);
+                }
             })
 
             var index = app.createdOrders.indexOf(order);
@@ -1337,7 +1328,7 @@ Vue.component('order-row', {
             map.setLayers(lst)
         },
         showImage(poly_wkt, imagery_start, imagery_end) {
-            const poly_crs = "EPSG:4326"
+            const poly_crs = "EPSG:4326";
 
             var lst = [];
             for (let i = 0, ii = map.getLayers().array_.length; i < ii; ++i) {
