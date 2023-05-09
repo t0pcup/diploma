@@ -38,8 +38,8 @@ def save_order_result_to_database(db, order):
             cursor.close()
             connection.close()
 
-def item_getter(path: str, file_name: str, transforms=A.Compose([
-    A.CenterCrop(256, 256, p=1.0, always_apply=False)]), val=False):
+
+def item_getter(path: str, file_name: str, transforms=A.Compose([A.CenterCrop(256, 256, p=1.0, always_apply=False)])):
     image = np.load(f'{path}/{file_name}', 'r')
     # image = rasterio.open(f'{path}/{file_name}', 'r').read()
 
@@ -61,8 +61,7 @@ class InferDataset(Dataset):
 
     def __getitem__(self, index):
         f_name = self.data_list[index]
-        image = item_getter(self.path, f_name, val=False)
-        return image
+        return item_getter(self.path, f_name)
 
 
 def new_normalize(im: np.ndarray) -> np.ndarray:
@@ -111,7 +110,7 @@ def process_image_ice(src_path, name_, model_path, output_img_path):
         encoder_weights=None,
         in_channels=4,
         classes=6,
-    ).to('cpu', dtype=torch.float32)
+    ).to(torch.device('cpu'), dtype=torch.float32)
     state_dict = torch.load(model_path, map_location=torch.device('cpu'))['model_state_dict']
     model.load_state_dict(state_dict)
 

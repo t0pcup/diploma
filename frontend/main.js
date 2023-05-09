@@ -1,18 +1,3 @@
-// import {setupCounter} from './counter.js'
-// import 'bootstrap';
-// import ImageWMS from './node_modules/ol/source/ImageWMS.js';
-// import GeoTIFFSource from './node_modules/ol/source/GeoTIFF.js';
-// import {toSize} from './node_modules/ol/size.js';
-// import GPX from './node_modules/ol/format/GPX.js';
-// import IGC from './node_modules/ol/format/IGC.js';
-// import KML from './node_modules/ol/format/KML.js';
-// import TopoJSON from './node_modules/ol/format/TopoJSON.js';
-// import Geometry from "./node_modules/jsts/org/locationtech/jts/geom/Geometry.js";
-// import GeometryFactory from "./node_modules/jsts/org/locationtech/jts/geom/GeometryFactory.js";
-// import Bounds, Size
-// import {Extent} from "ol/interaction.js";
-// import {boundingExtent} from './node_modules/ol/extent';
-// import {or} from "ol/format/filter.js";
 import './style.css'
 import VectorSource from './node_modules/ol/source/Vector.js';
 import VectorLayer from './node_modules/ol/layer/Vector.js';
@@ -41,12 +26,10 @@ import {
     Draw, 
     Modify, 
     Snap, 
-    // Select
 } from './node_modules/ol/interaction.js';
 import {
     Circle as CircleStyle,
     Fill,
-    // RegularShape,
     Stroke,
     Style,
     Text
@@ -60,12 +43,6 @@ import Polygon from './node_modules/ol/geom/Polygon.js';
 var zoneOfInterest = [];
 var varwkt;
 var varbound;
-// const attributions =
-//     '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> ' +
-//     '<a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>';
-//const viewProjSelect = document.getElementById('projection');
-// const projection = getProjection(viewProjSelect);
-
 const key = '4Z4vZj5CICocrdP4mCFb';
 const viewProjSelect = "EPSG:3857";
 const sent = 'b351739d-40a8-4e8a-b943-701ef8249e08';
@@ -98,7 +75,7 @@ const layer_sat = new TileLayer({
             'https://api.maptiler.com/tiles/satellite/{z}/{x}/{y}.jpg?key=' + key,
         maxZoom: 15,
     }),
-})
+});
 const layer_schema = new TileLayer({
     source: new OSM({
         attributions: '',
@@ -145,7 +122,6 @@ precisionInput.addEventListener('change', function (event) {
     mousePositionControl2.setCoordinateFormat(format);
 });
 
-// const extractStyles = document.getElementById('extract_styles');
 let dragAndDropInteraction;
 var lst = [];
 
@@ -393,70 +369,6 @@ const modify = new Modify({source: source, style: modifyStyle});
 map.addInteraction(modify);
 let draw, snap;
 
-// function onChangeProjection() {
-//     const currentView = map.getView();
-//     const currentProjection = currentView.getProjection();
-//     const newProjection = getProjection(viewProjSelect.value);
-//     const currentResolution = currentView.getResolution();
-//     const currentCenter = currentView.getCenter();
-//     const currentRotation = currentView.getRotation();
-//     const newCenter = transform(currentCenter, currentProjection, newProjection);
-//     const currentMPU = currentProjection.getMetersPerUnit();
-//     const newMPU = newProjection.getMetersPerUnit();
-//     const currentPointResolution =
-//         getPointResolution(currentProjection, 1 / currentMPU, currentCenter, 'm') *
-//         currentMPU;
-//     const newPointResolution =
-//         getPointResolution(newProjection, 1 / newMPU, newCenter, 'm') * newMPU;
-//     const newResolution =
-//         (currentResolution * currentPointResolution) / newPointResolution;
-//     const newView = new View({
-//         center: newCenter,
-//         resolution: newResolution,
-//         rotation: currentRotation,
-//         projection: newProjection,
-//     });
-
-//     var remember = [];
-//     for (let i = 0, ii = map.getLayers().array_.length; i < ii; ++i) {
-//         if (map.getLayers().array_[i].values_['zIndex'] === 0) {
-//             remember.push(map.getLayers().array_[i])
-//         }
-//     }
-//     map.setView(newView);
-//     map.setLayers([styles[styleSelector.value]]);
-
-//     var features = source.getFeatures();
-//     var wktRepresentation;
-//     var Bound;
-//     if (features.length === 0) {
-//         console.log('no shapes');
-//     } else {
-//         var format = new WKT();
-//         var geom;
-//         if (features.length === 1) {
-//             geom = features[0].getGeometry().clone().transform(currentProjection.code_, viewProjSelect.value)
-//             wktRepresentation = format.writeGeometry(geom);
-//             Bound = geom.getExtent();
-//         }
-//     }
-
-// //    if (remember.length > 0) { TODO 04.05.2023
-// //        my_str = `http://services.sentinel-hub.com/ogc/wms/${sent_2}?SERVICE=WMS&REQUEST=GetMap&CRS=${viewProjSelect.value}&SHOWLOGO=false&VERSION=1.3.0&LAYERS=NATURAL-COLOR&MAXCC=1&WIDTH=256&HEIGHT=256&CRS=EPSG:3857&FORMAT=image/jpeg&TIME=2018-03-29/2018-05-29&GEOMETRY=${wktRepresentation}`
-// //
-// //        var img_ext = olProj.transformExtent(Bound, 'EPSG:3857', 'EPSG:3857') // EPSG:4326 3857
-// //        var imageLayer = new ImageLayer({
-// //            source: new ImageStatic({
-// //                url: my_str,
-// //                imageExtent: img_ext
-// //            }),
-// //            zIndex: 0
-// //        });
-// //        map.addLayer(imageLayer);
-// //    }
-// }
-
-
 // ----------------------------------------------------------------------
 const server_url = 'http://localhost:8000'
 
@@ -494,10 +406,6 @@ function showAccountPage() {
     document.getElementById("loginError").visibility = "hidden";
     document.getElementById("currPwdError").visibility = "hidden";
     document.getElementById("newPwdError").visibility = "hidden";
-    // document.getElementById("logLogin").value = ''
-    // document.getElementById("logPwd").value = ''
-    // document.getElementById("logLogin").style.borderColor = ''
-    // document.getElementById("logPwd").style.borderColor = ''
 }
 
 function clearLocalStorage() {
@@ -758,7 +666,7 @@ document.getElementById("logSubmit").addEventListener('click', async function ()
     }
 });
 
-document.getElementById("newSubmit").addEventListener('click', async function () { // TODO: PATCH
+document.getElementById("newSubmit").addEventListener('click', async function () {
     if (validateAccForm()) {
         const username = document.getElementById("login").value.toString();
         const password = document.getElementById("currPwd").value.toString();
@@ -946,26 +854,6 @@ function sendOrder() {
 
     map.setLayers(lst)
 }
-
-// function createStartDate0(startDate) {
-//     if (startDate.length === 0) {
-//         startDate = "2020" + "-" + "06" + "-" + "02"
-//     }
-
-//     const date = new Date(startDate);
-//     const year = date.getFullYear();
-//     let month = date.getMonth() + 1;
-//     let day = date.getDate();
-
-//     if (month < 10) {
-//         month = "0" + month.toString();
-//     }
-//     if (day < 10) {
-//         day = "0" + day.toString();
-//     }
-
-//     return [year, month, day].join('-')
-// }
 
 function setUrl(start, fin, url, wkt_rep) {
     if (start.length === 0) {
