@@ -766,7 +766,7 @@ const interval = setInterval(function () {
             console.log("INTERVAL ERR:\n", response);
         }
     })
-}, 15000);
+}, 1000);
 
 document.getElementById("deleteAccount").addEventListener('click', async function () {
     const url_ = `${server_url}/me/`
@@ -1357,3 +1357,9 @@ var app = new Vue({
         }
     }
 })
+
+
+// var ws = new WebSocket("ws://127.0.0.2:65432");
+// ws.onmessage = function (evt) {
+//     console.log(evt);
+// }

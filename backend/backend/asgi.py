@@ -1,12 +1,14 @@
 import os
-
-from channels.auth import AuthMiddlewareStack
-from channels.routing import ProtocolTypeRouter
-from channels.routing import URLRouter
+# from channels.auth import AuthMiddlewareStack
+# from channels.routing import ProtocolTypeRouter
+# from channels.routing import URLRouter
 from django.core.asgi import get_asgi_application
-from django.urls import path
+# from django.urls import path
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
 
-from backend.consumers import RealTimeConsumer
+django_asgi_app = get_asgi_application()
+
+# from backend.consumers import RealTimeConsumer
 #
 # os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
 #
