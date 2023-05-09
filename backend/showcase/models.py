@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+import redis
 
 import geopandas as gpd
 from django.db import models
@@ -42,6 +43,13 @@ class OrderManager(models.Manager):
                            imagery_start=imagery_start,
                            imagery_end=imagery_end)
         order.save()
+
+        try:
+            r_server = redis.Redis(host="127.0.0.1", port=6379)
+            r_server.rpush("orderList", str(order.id))
+        except Exception as e:
+            print("REDIS EXCEPTION", e)
+
         return order
 
 

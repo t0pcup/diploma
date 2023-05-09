@@ -18,24 +18,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "django-insecure-1gmr5s2n_i&ylzl#1@k!9h^3j3co!fjsv$&!6%n%+!73j^#!kd"
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
 
-# Application definition
-
 INSTALLED_APPS = [
+    'daphne',
+    'channels',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "singlepage",
     "authentication",
     "showcase",
     "corsheaders"
@@ -76,7 +73,26 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "backend.wsgi.application"
-
+# ASGI_APPLICATION = 'backend.asgi.application'
+# CHANNELS_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels_redis.core.RedisChannelLayer'
+#     }
+# }
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
+#         # 'CONFIG': {
+#         #     "hosts": [('127.0.0.1', 54613)],
+#         # },
+#     },
+# }
+# CELERY_BEAT_SCHEDULE = {
+#     'task-real': {
+#         'task': 'realtime_task',
+#         'schedule': 1  # this means, the task will run itself every second
+#     },
+# }
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
