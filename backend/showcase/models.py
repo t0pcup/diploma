@@ -33,7 +33,7 @@ class OrderManager(models.Manager):
 
         try:
             dataset = gpd.GeoSeries.from_wkt(data=[poly_wkt], crs=crs).to_crs('epsg:4326')
-            poly = dumps(dataset.iloc[0], rounding_precision=3)
+            poly = dumps(dataset.iloc[0])  # , rounding_precision=3
         except GEOSException as geo:
             raise TypeError(f'Bad geometry. {geo}')
 

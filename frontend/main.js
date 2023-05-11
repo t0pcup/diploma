@@ -213,6 +213,27 @@ function update() { // TODO 24.03
     }
 }
 
+function clearLayers() {
+    document.getElementById('clearBtnL').disabled = true;
+    document.getElementById('userResD').classList.add('text-secondary');
+    document.getElementById('userResD').classList.remove('text-primary');
+    document.getElementById('exportBtnL').disabled = true;
+    document.getElementById('userResG').classList.add('text-secondary');
+    document.getElementById('userResG').classList.remove('text-primary');
+
+    var lst = [];
+    for (let i = 0, ii = map.getLayers().array_.length; i < ii; ++i) {
+        if (map.getLayers().array_[i].values_['zIndex'] !== 1 && map.getLayers().array_[i].values_['zIndex'] !== 3) {
+            lst.push(map.getLayers().array_[i])
+        }
+    }
+
+    map.setLayers([styles[styleSelector.value]]);
+    for (let i = 1; i < lst.length; i++) {
+        map.addLayer(lst[i]);
+    }
+}
+
 styleSelector.addEventListener('change', update);
 
 document.getElementById('undo').addEventListener('click', function () {
@@ -267,6 +288,9 @@ document.getElementById("exportBtn").addEventListener('click', function () {
         download(json, 'feature_export_4326.json', 'application/json');
 });
 document.getElementById("exportBtnL").addEventListener('click', function () {
+    document.getElementById('exportBtnL').disabled = true;
+    document.getElementById('userResG').classList.add('text-secondary');
+    document.getElementById('userResG').classList.remove('text-primary');
     var lst = [];
 
     for (let i = 0, ii = map.getLayers().array_.length; i < ii; ++i) {
@@ -313,17 +337,7 @@ document.getElementById("exportBtnL").addEventListener('click', function () {
         download_l(json, 'layer_export_4326.json', 'application/json');
 });
 document.getElementById("clearBtnL").addEventListener('click', function () {
-    var lst = [];
-    for (let i = 0, ii = map.getLayers().array_.length; i < ii; ++i) {
-        if (map.getLayers().array_[i].values_['zIndex'] !== 1 && map.getLayers().array_[i].values_['zIndex'] !== 3) {
-            lst.push(map.getLayers().array_[i])
-        }
-    }
-
-    map.setLayers([styles[styleSelector.value]]);
-    for (let i = 1; i < lst.length; i++) {
-        map.addLayer(lst[i]);
-    }
+    clearLayers();
 });
 document.getElementById("clearBtnI").addEventListener('click', function () {
     var lst = [];
@@ -1167,6 +1181,7 @@ Vue.component('order-row', {
                 '<div class="customCard" style="border: 1px solid red;">' +
                     '<div><div style="color: red">ВЫПОЛНЯЕТСЯ</div></div>' +
                     '<div>Создан: {{new Date(order.created_at).toLocaleString("ru-RU")}}</div>' +
+                    '<div>Начало съемки: {{new Date(order.imagery_start).toLocaleString("ru-RU").split(",")[0]}} Окончание: {{new Date(order.imagery_end).toLocaleString("ru-RU").split(",")[0]}}</div>' +
                     '<div><button @click="deleteOrder(order)" class="btn btn-outline-danger">Удалить заказ</button></div>' +
                 '</div>' +
             '</div>' +
@@ -1175,6 +1190,7 @@ Vue.component('order-row', {
                     '<div><div style="color: green">ГОТОВО</div></div>' +
                     '<div>Создан: {{new Date(order.created_at).toLocaleString("ru-RU")}}</div>' +
                     '<div v-if="order.finished_at !== null"><div>Завершен: {{new Date(order.finished_at).toLocaleString("ru-RU")}}</div></div>' +
+                    '<div>Начало съемки: {{new Date(order.imagery_start).toLocaleString("ru-RU").split(",")[0]}} Окончание: {{new Date(order.imagery_end).toLocaleString("ru-RU").split(",")[0]}}</div>' +
                     '<div><button  v-if="order.finished_at !== null" @click="showResult(order.predict)" class="btn btn-primary m-1">Результат</button></div>' +
                     '<div><button  v-if="order.finished_at !== null" @click="showImage(order.poly_wkt, order.imagery_start, order.imagery_end)" class="btn btn-outline-primary m-1">Снимок</button></div>' +
                     '<div><button @click="deleteOrder(order)" class="btn btn-outline-danger">Удалить заказ</button></div>' +
@@ -1216,7 +1232,9 @@ Vue.component('order-row', {
             map.setLayers(lst)
         },
         showImage(poly_wkt, imagery_start, imagery_end) {
-            const poly_crs = "EPSG:4326";
+            const poly_crs = "EPSG:4326";  // "EPSG:3857"
+            console.log("PIC PIC PIC PIC");
+            console.log(poly_wkt);
 
             var lst = [];
             for (let i = 0, ii = map.getLayers().array_.length; i < ii; ++i) {
@@ -1253,6 +1271,15 @@ Vue.component('order-row', {
             document.getElementById('userShp').classList.add('text-secondary');
         },
         showResult(res) {
+            clearLayers();
+            document.getElementById('exportBtnL').disabled = false;
+            document.getElementById('userResG').classList.add('text-primary');
+            document.getElementById('userResG').classList.remove('text-secondary');
+
+            document.getElementById('clearBtnL').disabled = false;
+            document.getElementById('userResD').classList.add('text-primary');
+            document.getElementById('userResD').classList.remove('text-secondary');
+
             var lst_keep = [];
             for (let i = 0, ii = map.getLayers().array_.length; i < ii; ++i) {
                 if (map.getLayers().array_[i].values_['zIndex'] === 3) {
@@ -1267,16 +1294,17 @@ Vue.component('order-row', {
 
             var vectorSource;
             var colour = [
-                'rgba(0, 0, 255, 0.4)',
-                'rgba(255, 255, 0, 0.4)',
-                'rgba(255, 128, 0, 0.4)',
-                'rgba(255, 0, 0, 0.4)',
-                'rgba(0, 128, 0, 0.4)',
+                'rgba(0, 0, 255, 0.3)',
+                'rgba(255, 255, 0, 0.3)',
+                'rgba(255, 128, 0, 0.3)',
+                'rgba(255, 0, 0, 0.3)',
+                'rgba(0, 128, 0, 0.3)',
             ];
             for (let i = 0, ii = res.split('\n').length; i < ii; ++i) {
                 if (res.split('\n')[i].length < 10){
                     continue;
                 }
+
                 var coordinates = JSON.parse(res.split('\n')[i]).features[0].geometry.coordinates;
                 var feature;
                 if ((res.split('\n')[i]).includes('MultiPolygon')){
@@ -1298,8 +1326,8 @@ Vue.component('order-row', {
                                     zIndex: 3,
                                     style: {
                                             'fill-color': colour[i],
-                                            'stroke-color': '#666666',
-                                            'stroke-width': 2,
+                                            'stroke-color': 'rgba(0, 0, 0, 0)',
+                                            'stroke-width': 0,
                                             'circle-radius': 5,
                                             'circle-fill-color': '#666666',
                                         },
