@@ -9,22 +9,27 @@ from helpers import *
 # server.listen(5)
 # (client, address) = server.accept()
 root = 'C:/diploma/backend'
-
 setup_logging(0)
-etl_cleanup()
 
 while True:
+    etl_cleanup()
     all_orders = redis_get_all()
     if len(all_orders) > 0:
         print(all_orders)
+    else:
+        print('none')
+        time.sleep(10)
     for order_id in all_orders:
         time_start = time.time()
 
         order = get_order(order_id)
-        eo_do_it(order)
-        os.system(f'{root}/venv/Scripts/python {root}/deep_api/predict.py {order.id}')
-
-        print(order.id, f"ITER DURATION {convert(int(time.time() - time_start))}")
+        status = eo_do_it(order)
+        # os.system(f'{root}/venv/Scripts/python {root}/deep_api/predict.py {order.id}')
+        time.sleep(0.5)
+        flag = input("Gimme flag")
+        print(flag)
+        symbols = get_predict(order)
+        print(order.id, f"ITER DURATION {convert(int(time.time() - time_start))} ({status}, {symbols})")
         # try:
         #     client.send(order.id.encode('utf-8'))
         #     m = client.recv(1024)

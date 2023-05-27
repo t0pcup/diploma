@@ -64,7 +64,7 @@ class LoginAPIView(APIView):
 
 
 class DeleteAPIView(APIView):
-    permission_classes = (AllowAny,)  # todo IsAuthenticated
+    permission_classes = (AllowAny,)
     renderer_classes = (UserJSONRenderer,)
     serializer_class = DeleteSerializer
 

@@ -13,6 +13,8 @@ import GeoJSON from './node_modules/ol/format/GeoJSON.js';
 import TileLayer from './node_modules/ol/layer/Tile.js';
 import XYZ from './node_modules/ol/source/XYZ.js';
 import OSM from './node_modules/ol/source/OSM.js';
+import Overlay from './node_modules/ol/Overlay.js';
+import {fromLonLat, toLonLat} from './node_modules/ol/proj.js';
 import {ScaleLine, defaults as defaultControls} from './node_modules/ol/control.js';
 import {createBox} from './node_modules/ol/interaction/Draw.js';
 import {
@@ -45,7 +47,7 @@ var varwkt;
 var varbound;
 const key = '4Z4vZj5CICocrdP4mCFb';
 const viewProjSelect = "EPSG:3857";
-const sent = 'b351739d-40a8-4e8a-b943-701ef8249e08';
+const sent = '68a2b1e1-bf56-4926-9f63-40e8ec008c9c';  // b351739d-40a8-4e8a-b943-701ef8249e08
 const layer = 'IW_VV_DB';
 const scaleControl = new ScaleLine({
     units: 'metric',
@@ -213,6 +215,27 @@ function update() { // TODO 24.03
     }
 }
 
+function clearLayers() {
+    document.getElementById('clearBtnL').disabled = true;
+    document.getElementById('userResD').classList.add('text-secondary');
+    document.getElementById('userResD').classList.remove('text-primary');
+    document.getElementById('exportBtnL').disabled = true;
+    document.getElementById('userResG').classList.add('text-secondary');
+    document.getElementById('userResG').classList.remove('text-primary');
+
+    var lst = [];
+    for (let i = 0, ii = map.getLayers().array_.length; i < ii; ++i) {
+        if (map.getLayers().array_[i].values_['zIndex'] !== 1 && map.getLayers().array_[i].values_['zIndex'] !== 3) {
+            lst.push(map.getLayers().array_[i])
+        }
+    }
+
+    map.setLayers([styles[styleSelector.value]]);
+    for (let i = 1; i < lst.length; i++) {
+        map.addLayer(lst[i]);
+    }
+}
+
 styleSelector.addEventListener('change', update);
 
 document.getElementById('undo').addEventListener('click', function () {
@@ -267,6 +290,9 @@ document.getElementById("exportBtn").addEventListener('click', function () {
         download(json, 'feature_export_4326.json', 'application/json');
 });
 document.getElementById("exportBtnL").addEventListener('click', function () {
+    document.getElementById('exportBtnL').disabled = true;
+    document.getElementById('userResG').classList.add('text-secondary');
+    document.getElementById('userResG').classList.remove('text-primary');
     var lst = [];
 
     for (let i = 0, ii = map.getLayers().array_.length; i < ii; ++i) {
@@ -313,17 +339,7 @@ document.getElementById("exportBtnL").addEventListener('click', function () {
         download_l(json, 'layer_export_4326.json', 'application/json');
 });
 document.getElementById("clearBtnL").addEventListener('click', function () {
-    var lst = [];
-    for (let i = 0, ii = map.getLayers().array_.length; i < ii; ++i) {
-        if (map.getLayers().array_[i].values_['zIndex'] !== 1 && map.getLayers().array_[i].values_['zIndex'] !== 3) {
-            lst.push(map.getLayers().array_[i])
-        }
-    }
-
-    map.setLayers([styles[styleSelector.value]]);
-    for (let i = 1; i < lst.length; i++) {
-        map.addLayer(lst[i]);
-    }
+    clearLayers();
 });
 document.getElementById("clearBtnI").addEventListener('click', function () {
     var lst = [];
@@ -766,7 +782,7 @@ const interval = setInterval(function () {
             console.log("INTERVAL ERR:\n", response);
         }
     })
-}, 1000);
+}, 3000);
 
 document.getElementById("deleteAccount").addEventListener('click', async function () {
     const url_ = `${server_url}/me/`
@@ -1167,6 +1183,7 @@ Vue.component('order-row', {
                 '<div class="customCard" style="border: 1px solid red;">' +
                     '<div><div style="color: red">ВЫПОЛНЯЕТСЯ</div></div>' +
                     '<div>Создан: {{new Date(order.created_at).toLocaleString("ru-RU")}}</div>' +
+                    '<div><br />Начало съемки: {{new Date(order.imagery_start).toLocaleString("ru-RU").split(",")[0]}}<br />Окончание: {{new Date(order.imagery_end).toLocaleString("ru-RU").split(",")[0]}}<br /><br /></div>' +
                     '<div><button @click="deleteOrder(order)" class="btn btn-outline-danger">Удалить заказ</button></div>' +
                 '</div>' +
             '</div>' +
@@ -1175,6 +1192,7 @@ Vue.component('order-row', {
                     '<div><div style="color: green">ГОТОВО</div></div>' +
                     '<div>Создан: {{new Date(order.created_at).toLocaleString("ru-RU")}}</div>' +
                     '<div v-if="order.finished_at !== null"><div>Завершен: {{new Date(order.finished_at).toLocaleString("ru-RU")}}</div></div>' +
+                    '<div><br />Начало съемки: {{new Date(order.imagery_start).toLocaleString("ru-RU").split(",")[0]}}<br />Окончание: {{new Date(order.imagery_end).toLocaleString("ru-RU").split(",")[0]}}<br /><br /></div>' +
                     '<div><button  v-if="order.finished_at !== null" @click="showResult(order.predict)" class="btn btn-primary m-1">Результат</button></div>' +
                     '<div><button  v-if="order.finished_at !== null" @click="showImage(order.poly_wkt, order.imagery_start, order.imagery_end)" class="btn btn-outline-primary m-1">Снимок</button></div>' +
                     '<div><button @click="deleteOrder(order)" class="btn btn-outline-danger">Удалить заказ</button></div>' +
@@ -1216,7 +1234,9 @@ Vue.component('order-row', {
             map.setLayers(lst)
         },
         showImage(poly_wkt, imagery_start, imagery_end) {
-            const poly_crs = "EPSG:4326";
+            const poly_crs = "EPSG:4326";  // "EPSG:3857"
+            // console.log("PIC PIC PIC PIC");
+            // console.log(poly_wkt);
 
             var lst = [];
             for (let i = 0, ii = map.getLayers().array_.length; i < ii; ++i) {
@@ -1253,7 +1273,17 @@ Vue.component('order-row', {
             document.getElementById('userShp').classList.add('text-secondary');
         },
         showResult(res) {
+            clearLayers();
+            document.getElementById('exportBtnL').disabled = false;
+            document.getElementById('userResG').classList.add('text-primary');
+            document.getElementById('userResG').classList.remove('text-secondary');
+
+            document.getElementById('clearBtnL').disabled = false;
+            document.getElementById('userResD').classList.add('text-primary');
+            document.getElementById('userResD').classList.remove('text-secondary');
+
             var lst_keep = [];
+            var ext = [999999999, 999999999, -999999999, -999999999];
             for (let i = 0, ii = map.getLayers().array_.length; i < ii; ++i) {
                 if (map.getLayers().array_[i].values_['zIndex'] === 3) {
                     lst_keep.push(map.getLayers().array_[i])
@@ -1267,16 +1297,24 @@ Vue.component('order-row', {
 
             var vectorSource;
             var colour = [
-                'rgba(0, 0, 255, 0.4)',
-                'rgba(255, 255, 0, 0.4)',
-                'rgba(255, 128, 0, 0.4)',
-                'rgba(255, 0, 0, 0.4)',
-                'rgba(0, 128, 0, 0.4)',
+                'rgba(0, 0, 255, 0.3)',
+                'rgba(255, 255, 0, 0.3)',
+                'rgba(255, 128, 0, 0.3)',
+                'rgba(255, 0, 0, 0.3)',
+                'rgba(0, 128, 0, 0.3)',
+            ];
+            const comment = [
+                'Вода',
+                'Лед &lt; 80%',
+                'Лед &ge; 80%',
+                'Припой',
+                'Суша'
             ];
             for (let i = 0, ii = res.split('\n').length; i < ii; ++i) {
                 if (res.split('\n')[i].length < 10){
                     continue;
                 }
+
                 var coordinates = JSON.parse(res.split('\n')[i]).features[0].geometry.coordinates;
                 var feature;
                 if ((res.split('\n')[i]).includes('MultiPolygon')){
@@ -1292,21 +1330,42 @@ Vue.component('order-row', {
                 vectorSource = new VectorSource({
                     features: [feature],
                 });
+                const new_ext = vectorSource.getExtent();
+                if (ext[0] > new_ext[0]) {
+                    ext[0] = new_ext[0];
+                }
+                if (ext[1] > new_ext[1]) {
+                    ext[1] = new_ext[1];
+                }
+                if (ext[2] < new_ext[2]) {
+                    ext[2] = new_ext[2];
+                }
+                if (ext[3] < new_ext[3]) {
+                    ext[3] = new_ext[3];
+                }
+                feature.set("key", comment[i]);
+                
                 map.addLayer(
                                 new VectorLayer({
                                     source: vectorSource,
                                     zIndex: 3,
                                     style: {
                                             'fill-color': colour[i],
-                                            'stroke-color': '#666666',
-                                            'stroke-width': 2,
+                                            'stroke-color': 'rgba(0, 0, 0, 0)',
+                                            'stroke-width': 0,
                                             'circle-radius': 5,
                                             'circle-fill-color': '#666666',
                                         },
                                 })
                             );
             }
-            map.getView().fit(vectorSource.getExtent());
+            // console.log(vectorSource.getExtent());
+            // ext[0] -= 2500;
+            // ext[1] -= 2500;
+            // ext[2] += 2500;
+            // ext[3] += 2500;
+            map.getView().fit(ext);
+            // map.getView().fit(vectorSource.getExtent());
         }
     }
 });
@@ -1363,3 +1422,63 @@ var app = new Vue({
 // ws.onmessage = function (evt) {
 //     console.log(evt);
 // }
+
+const featureOverlay = new VectorLayer({
+    source: new VectorSource(),
+    map: map,
+    style: new Style({
+      stroke: new Stroke({
+        color: 'rgba(0, 0, 0, 0.7)',
+        width: 1,
+      }),
+    }),
+  });
+
+let highlight;
+let marker = new Overlay({
+    element: document.getElementById('marker'),
+    autoPan: true,
+    autoPanAnimation: {
+         duration: 250
+    }
+  });
+map.addOverlay(marker);
+
+const displayFeatureInfoL = function (pixel) {
+  const feature = map.forEachFeatureAtPixel(pixel, function (feature) {
+    return feature;
+  });
+
+  if (feature) {
+    const hover_text = feature.get('key');
+    if (hover_text !== undefined) {
+        document.getElementById('marker').innerHTML = '&nbsp;' + hover_text + '&nbsp;';
+        let pos = document.getElementsByClassName('custom-mouse-position2')[0].textContent;
+        marker.setPosition(pos.split(', ').map(Number));
+    }
+    } else {
+    marker.setPosition(undefined);
+  }
+
+  if (feature !== highlight) {
+    if (highlight) {
+      featureOverlay.getSource().removeFeature(highlight);
+    }
+    if (feature) {
+      featureOverlay.getSource().addFeature(feature);
+    }
+    highlight = feature;
+  }
+};
+
+map.on('pointermove', function (evt) {
+  if (evt.dragging) {
+    return;
+  }
+  const pixel = map.getEventPixel(evt.originalEvent);
+  displayFeatureInfoL(pixel);
+});
+
+map.on('click', function (evt) {
+    displayFeatureInfoL(evt.pixel);
+});

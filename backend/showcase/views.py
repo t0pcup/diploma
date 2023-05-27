@@ -12,7 +12,7 @@ from .serializers import CreateSerializer, GetAllSerializer, DelOrderSerializer
 
 
 class OrderAPIView(APIView):
-    permission_classes = (AllowAny,)  # TODO: IsAuthenticated
+    permission_classes = (AllowAny,)
     renderer_classes = (OrderJSONRenderer,)
     serializer_class = CreateSerializer
 
@@ -29,7 +29,7 @@ class OrderAPIView(APIView):
 
 
 class OrdersAPIView(APIView):
-    permission_classes = (AllowAny,)  # TODO: IsAuthenticated
+    permission_classes = (AllowAny,)
     renderer_classes = (OrdersJSONRenderer,)
     serializer_class = GetAllSerializer
 
@@ -44,7 +44,7 @@ class OrdersAPIView(APIView):
 
 
 class DelOrderAPIView(APIView):
-    permission_classes = (AllowAny,)  # TODO: IsAuthenticated
+    permission_classes = (AllowAny,)
     renderer_classes = (DelOrderRenderer,)
     serializer_class = DelOrderSerializer
 
