@@ -168,7 +168,6 @@ def eo_do_it(order: Order) -> str:
         max_y = int((np.abs(stack.y - min_utm[1])).argmin())
         max_x = int((np.abs(stack.x - max_utm[0])).argmin())
         min_y = int((np.abs(stack.y - max_utm[1])).argmin())
-
         step_x = (max_x - min_x) // chunk_size
         step_y = (max_y - min_y) // chunk_size
         print(step_x, step_y)
@@ -288,6 +287,7 @@ def rasterio_geo(bytestream, mask_, key):
     with rasterio.open(bytestream) as dataset:
         for geom, val in shapes(mask_, transform=dataset.transform):
             if val == key:
+                # g = rasterio.warp.transform_geom(dataset.crs, 'EPSG:4326', geom)
                 g = rasterio.warp.transform_geom(dataset.crs, 'EPSG:3857', geom)
                 geoms.append(g)
     return geoms
