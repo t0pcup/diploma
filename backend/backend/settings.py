@@ -18,7 +18,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-SECRET_KEY = "django-insecure-1gmr5s2n_i&ylzl#1@k!9h^3j3co!fjsv$&!6%n%+!73j^#!kd"
+SECRET_KEY = "######################################"
 
 DEBUG = True
 
@@ -101,7 +101,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'django',
         'USER': 'postgres',
-        'PASSWORD': '20010608Kd',
+        'PASSWORD': '##########',
         'HOST': '127.0.0.1',
         'PORT': '5432',
     }

@@ -45,9 +45,9 @@ import Polygon from './node_modules/ol/geom/Polygon.js';
 var zoneOfInterest = [];
 var varwkt;
 var varbound;
-const key = '4Z4vZj5CICocrdP4mCFb';
+const key = '####################';
 const viewProjSelect = "EPSG:3857";
-const sent = '68a2b1e1-bf56-4926-9f63-40e8ec008c9c';  // b351739d-40a8-4e8a-b943-701ef8249e08
+const sent = '#######################';  // b351739d-40a8-4e8a-b943-701ef8249e08
 const layer = 'IW_VV_DB';
 const scaleControl = new ScaleLine({
     units: 'metric',
